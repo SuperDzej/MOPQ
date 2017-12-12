@@ -1,0 +1,29 @@
+{
+  "name": "mopquestionnaire",
+  "description": "Basic Questionnaire",
+  "homepage": "http://mopquestionnaire.org",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "~3",
+    "angular": "~1.3",
+    "angular-resource": "~1.3",
+    "angular-animate": "~1.3",
+    "angular-mocks": "~1.3",
+    "angular-bootstrap": "~0.13",
+    "angular-ui-utils": "bower",
+    "angular-ui-router": "~0.2",
+    "angular-file-upload": "1.1.5",
+    "angular-messages": "~1.3.17",
+    "owasp-password-strength-test": "~1.3.0",
+    "ngSweetAlert": "angular-sweetalert#^1.1.2",
+    "d3": "^4.10.2",
+    "angularjs-datepicker": "^2.1.23",
+    "jScrollPane": "v2.0.22",
+    "jquery-appear": "https://raw.githubusercontent.com/bas2k/jquery.appear/master/jquery.appear.js",
+    "owl.carousel": "^2.2.1",
+    "sweetalert": "1.1.0"
+  },
+  "resolutions": {
+    "angular": "~1.3"
+  }
+}

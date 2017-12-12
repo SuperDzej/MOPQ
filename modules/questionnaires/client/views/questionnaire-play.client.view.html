@@ -1,0 +1,46 @@
+<section ng-controller="QuizPlayController" ng-init="getByID()" class="quizPlayMain">
+
+  <div class="marginTop20">
+    <div class="questions form-group row" ng-hide="currentQuestion === questionnaire.questions.length">
+      <div class="col-md-3">
+        <div class="text-center greenBox">
+            <p class="questionP">
+              <span ng-bind="currentQuestion + 1"></span> / 
+              <span ng-bind="questionnaire.questions.length"></span>
+            </p>
+            <hr>
+            <p class="timeQuizDescription">QUESTIONS</p>
+        </div>
+      </div>
+      <div class="quizQuestionDescription greenBox col-md-6">
+        <p class="text-center questionName" ng-bind="questionnaire.questions[currentQuestion].name"></p>
+      </div>
+      <div class="col-md-3">
+        <div class="text-center greenBox">
+          <p class="questionP" questionnaire-timer="finishQuiz()" timer-minutes="{{questionnaire.duration}}" timer-seconds="0" timer-hours="0">
+            <span ng-bind="timer"></span>
+          </p>
+          <hr>
+          <p class="timeQuizDescription">QUIZ TIMER</p>
+        </div>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-md-6" ng-repeat="option in questionnaire.questions[currentQuestion].options">
+          <div class="input-group col-md-12 margin10">
+            <span class="input-group-addon">
+              <span class="questionOptionNumber" ng-bind="$index + 1"></span>
+            </span>
+            <p class="form-control col-md-12 answerText" ng-bind="option.name" ng-click="registerAnswer($index)"></p>
+          </div>
+      </div>
+    </div>
+    <div ng-show="currentQuestion === questionnaire.questions.length" class="text-center questionnaireFinished">
+      <p  class="quizFinishedText">You have finished questionnaire</p>
+    </div>
+    <!--<div class="form-group" ng-show="currentQuestion < questionnaire.questions.length">
+      <button class="btn btn-primary" ng-click="switchQuestion('--')">Previous</button>
+      <button class="btn btn-primary pull-right" ng-click="switchQuestion('++')">Next</button>
+    </div>-->
+  </div>
+</section>

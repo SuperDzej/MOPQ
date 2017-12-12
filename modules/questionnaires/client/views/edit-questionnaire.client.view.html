@@ -1,0 +1,33 @@
+<section ng-controller="QuestionnaireController" ng-init="getByID()">
+  <div class="list-group">
+    <div class="container generate-container">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <div class="form-group">
+                <div class="form-group row">
+                  <label class="form-control-label col-md-2" for="quizName">Name</label>
+                  <input id="quizName" class="form-control col-md-10" id="quizName" ng-model="editQuiz.name" value="{{editQuiz.name}}" type="text" placeholder="Enter questionnaire name" />              
+                </div>
+                <div class="form-group row">
+                  <label class="form-control-label col-md-2" for="description">Description</label>
+                  <textarea rows="8" id="description" class="form-control col-md-10" ng-model="editQuiz.description" value="{{editQuiz.description}}" type="text" placeholder="Enter questionnaire description"></textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <button class="btn btn-lg upload-btn" type="button" ng-click="edit(editQuiz)">Save</button>
+              </div>
+              
+              <div ng-show="editedSuccessfully" class="alert alert-success alert-dismissable text-success">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>Success!</strong> You have edited questionnaire.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

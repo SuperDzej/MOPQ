@@ -1,0 +1,67 @@
+<section ng-controller="HomeController">
+  <div class="jumbotron text-center">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-12">
+        <img ng-src="modules/core/client/img/brand/logo.png" alt="MOP Questionnaire" class="img-responsive text-center" />
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <p class="lead">Simple MOP Questionnaire</p>
+    </div>
+  </div>
+  <!-- START OF CURRENT COURSES -->
+  <div ng-if="authentication.user">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-addon">
+            <i class="fa fa-file-text-o" aria-hidden="true" aria-label="..."></i>
+          </span>
+          <input class="form-control" ng-model="searchText" placeholder="Search courses by name">
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-addon">
+            <i class="fa fa-calendar" aria-hidden="true" aria-label="searchDate"></i>
+          </span>
+          <datepicker class="width100" date-format="dd MMMM yyyy">
+            <input id="searchDate" aria-label="searchDate" type="text" class="form-control width100" ng-model="searchDate" placeholder="Search courses by date">
+          </datepicker>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6 col-md-4" ui-sref="courses.view({ courseId: course._id })" ng-repeat="course in courses | orderBy:'-created' | filterDate: searchDate | filter: searchText as results">
+        <div class="thumbnail height450">
+          <div class="height50Proc">
+            <img http-src="{{course.image}}" alt="{{course.name}}" class="thumbnail-image img-responsive containImg" />
+          </div>
+
+          <div class="caption height50Proc">
+            <h4 class="lead" ng-bind="course.name"></h4>
+            <p ng-bind='getShortDescription(course.description)'></p>
+            <div class="thumbnail-bottom-position">
+              <p class="col-md-8">
+                <span ng-bind="course.lecturer"></span>
+              </p>
+              <span class="col-md-4 text-success text-right text-price" ng-bind="course.price"></span>
+            </div>
+
+          </div>
+          <div class="overlay">
+          </div>
+        </div>
+        <div class="col-md-12" ng-if="results.length == 0">
+          <p class="alert-warning">No courses to display</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END OF CURRENT COURSES -->
+
+</section>

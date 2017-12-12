@@ -1,0 +1,21 @@
+<section ng-controller="QuestionnaireController" ng-init="getByID()">
+  <div class="page-header">
+    <h3 ng-bind="questionnaire.name"></h3>
+  </div>
+  <p class="col-md-12" ng-bind="questionnaire.description"></p>
+  <div class="questions">
+    <fieldset class="form-group container" data-ng-repeat="question in questionnaire.questions">
+      <div class="form-group row">
+        <label class="form-control-label col-md-1" for="description">Q {{$index + 1}}</label>
+        <input class="form-control col-md-11" name="qQuestion{{$index}}" type="text" ng-model="question.name" readonly />
+      </div>
+      <div class="margin10 row">
+        <div class="col-md-6" ng-repeat="option in question.options">
+          <p class="col-md-1 padding0 option optionNumber">{{$index + 1}}</p>
+          <input name="qAnswer{{$index}}" class="form-control col-md-11"  ng-class="{ 'has-success': option.isCorrect }" type="text" ng-model="option.name" readonly />
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <p class="clearfix"></p>
+</section>
