@@ -3,6 +3,12 @@
 angular
   .module('questionnaires')
   .directive('customQuestionnaireSubmit', ['$parse', function ($parse) {
+
+    var checkIfNumberOfCorrectOptionsIsValid = function(scope, type, options) {
+      var questionType = scope.questionTypes.filter(questionType => questionType.type === type);
+      
+    };
+
     return {
       restrict: 'A',
       require: '^form',
