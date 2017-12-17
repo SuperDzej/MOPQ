@@ -1,35 +1,48 @@
 'use strict';
 
 // CertificateFactory controller
-angular.module('questionnaires').controller('QuizPlayController', ['$scope', '$rootScope', '$stateParams', '$location', '$localstorage', '$window', 'Authentication', 'QuizFactory', 'QuestionnaireService', 'SweetAlert', 'FileUploader',
+angular.module('questionnaires').controller('QuestionnairePlayController', ['$scope', '$rootScope', '$stateParams', '$location', '$localstorage', '$window', 'Authentication', 'QuizFactory', 'QuestionnaireService', 'SweetAlert', 'FileUploader',
   function ($scope, $rootScope, $stateParams, $location, $localstorage, $window, Authentication, QuizFactory, QuestionnaireService, SweetAlert, FileUploader) {
     $scope.authentication = Authentication;
     $rootScope.mainTitle = 'Questionnaires';
     $scope.quizFinished = false;
     var answerStorageKey = 'answers', finishedStorageKey = 'finished', greenBackgroundClass = 'greenBackground', mainBackgroundClass = 'mainBackground';
-
+    var vm = this;
     $scope.questionnaire = {};
     $scope.currentQuestion = 0;
+
     $scope.getByID = function () {
       var id = $stateParams.questionnaireId;
+      answerStorageKey += id;
+      finishedStorageKey += id;
+
       var finishedObject = $localstorage.getObject(finishedStorageKey);
       if (finishedObject && finishedObject.questionnaire === id) {
         $scope.currentQuestion = finishedObject.answers.length;
       }
       angular.element('.' + mainBackgroundClass).addClass(greenBackgroundClass);
 
-      QuestionnaireService.getByID(id)
+      QuestionnaireService.getByIDForPlay(id)
         .then(function (response) {
-          $scope.questionnaire = response.data;
-          var answers = $localstorage.getObject(answerStorageKey);
-          if (answers.length !== undefined) {
-            $scope.currentQuestion = answers.length;
-          }
+          if(response.status === 200) {
+            $scope.questionnaire = response.data;
+            /* var answers = $localstorage.getObject(answerStorageKey);
+            if (answers.length !== undefined) {
+              $scope.currentQuestion = answers.length;
+            } */
 
-          addLocationChangeListener();
-          $scope.startTime = new Date();
+            // When user tries to navigate from the page
+            addLocationChangeListener();
+            $scope.startTime = new Date();
+          }
+          else {
+            alert(response.data);
+          }
         }, function (error) {
-          console.log(error);
+          var sweetAlert = SweetAlert.swal("Error!", error.data.message);
+          setTimeout(function() {
+            $window.location.href = '/';
+          }, 2000);
         });
     };
 
@@ -59,14 +72,39 @@ angular.module('questionnaires').controller('QuizPlayController', ['$scope', '$r
       }
     };
 
+    var registerAnswer = function () {
+      var question = $scope.questionnaire.questions[$scope.currentQuestion];
+      for(let i = 0;i < question.options.length;i++) {
+        
+        var option = question.options[i];
+        if(option.answer !== undefined && option.answer !== 'No') {
+          $scope.answers.push({
+            questionOptionId: option.id,
+            questionId: question.id,
+            name: option.answer.multiple ? option.answer.multiple : option.answer
+          });
+        }
+      }
+
+      $localstorage.setObject(answerStorageKey, $scope.answers);
+    };
+
     $scope.switchQuestion = function (operator) {
       if ($scope.quizFinished) {
         return;
       }
 
+      registerAnswer();
       var value = match_operator_up[operator]($scope.currentQuestion);
       $scope.currentQuestion = value;
+
       if (value >= $scope.questionnaire.questions.length) {
+        if($scope.answers.length < $scope.questionnaire.questions.length) {
+          $scope.currentQuestion--;
+          alert('Please answer all questions');
+          return false;
+        }
+        
         $scope.finishQuiz();
         return;
       }
@@ -90,16 +128,16 @@ angular.module('questionnaires').controller('QuizPlayController', ['$scope', '$r
 
     $scope.answers = [];
     $scope.registerAnswer = function (index) {
-      var question = $scope.questionnaire.questions[$scope.currentQuestion];
-      var option = question.options[index];
-      $scope.answers.push(option.id);
-      $localstorage.setObject(answerStorageKey, $scope.answers);
-      $scope.switchQuestion('++');
+      registerAnswer(index);
     };
 
     $scope.$on("$destroy", function () {
       angular.element('.' + mainBackgroundClass).removeClass(greenBackgroundClass);
     });
 
+    QuestionnaireService.getQuestionTypes()
+      .then(function(response) {
+        $scope.questionTypes = response.data;
+      });
   }
 ]);

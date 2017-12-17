@@ -39,7 +39,13 @@ exports.invokeRolesPolicies = function() {
       resources: '/api/questionnaires',
       permissions: '*'
     }, {
+      resources: '/api/questionnaires/questiontypes',
+      permissions: '*'
+    }, {
       resources: '/api/questionnaires/:questionnaireId',
+      permissions: '*'
+    }, {
+      resources: '/api/questionnaires/play/:questionnaireIdForPlay',
       permissions: '*'
     }]
   }, {
@@ -49,10 +55,13 @@ exports.invokeRolesPolicies = function() {
       permissions: ['get']
     }, {
       resources: '/api/questionnaires/:questionnaireId',
-      permissions: ['get']
+      permissions: []
     }, {
-      resources: '/api/questionnaires/finish/:questionnaireId',
-      permissions: ['post']
+      resources: '/api/questionnaires/play/:questionnaireIdForPlay',
+      permissions: ['get', 'post']
+    }, {
+      resources: '/api/questionnaires/questiontypes',
+      permissions: ['get']
     }]
   }, {
     roles: ['guest'],

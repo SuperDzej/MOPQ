@@ -2,7 +2,6 @@
   <div class="page-header">
     <h1>Create</h1>
   </div>
-
   <div class="list-group">
     <div class="container generate-container">
       <div class="row">
@@ -46,11 +45,11 @@
                       <div class="col-md-8">
                         <input class="form-control qQuestion{{$index}}" name="qQuestion{{$index}}" type="text" ng-model="question.name" placeholder="Enter question" />
                       </div>
-                      <div class="col-md-2" style="width: 12%;">
-                        <select  style="margin-left:-25px;" name="qType" ng-model="question.type" class="form-control col-md-10" id="selectType" ng-options="questionType as questionType.type for questionType in questionTypes">
+                      <div class="col-md-2 col-md-2-custom">
+                        <select name="qType" ng-model="question.type" class="form-control col-md-10 questionTypeMargin" id="selectType" ng-options="questionType.type as questionType.description for questionType in questionTypes">
                         </select>
                       </div>
-                      <button style="margin-left:-30px;width: 5%;" class="btn btn-danger col-md-1" ng-show="$last" ng-click="removeQuestion()">-</button> 
+                      <button class="btn btn-danger col-md-1 removeQuestion" ng-show="$last" ng-click="removeQuestion()">-</button> 
                     </div>
                     <div class="margin10 marginTop0 row" ng-class="{ 'has-error': quizForm.qQuestion{{$index}}.$invalid }">
                       <div class="form-group row text-danger" ng-messages="quizForm.qQuestion{{$index}}.$error">
@@ -69,7 +68,7 @@
                   </fieldset>
                   <div class="margin10 col-md-12 text-center">
                     <button class="addfields btn btn-default" ng-click="addNewQuestion($event)">Add question</button>
-                    <button class="addfields btn btn-default" ng-click="addNewAnswer($event)">Add option</button>
+                    <button class="addfields btn btn-default" ng-click="addNewOption($event)">Add option</button>
                   </div>
                 </div>
                 <p class="clearfix"></p>

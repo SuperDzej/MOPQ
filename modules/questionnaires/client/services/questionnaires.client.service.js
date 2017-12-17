@@ -5,15 +5,29 @@ angular.module('questionnaires').service('QuestionnaireService', ['$http',
   function ($http) {
     var docxDocument = {};
 
-    docxDocument.create = function (data) {
+    var create = function (data) {
       return $http.post('api/questionnaires', data)
         .then(function (response) {
           return response;
         });
     };
 
-    docxDocument.getByID = function(id) {
+    var get = function(id) {
+      return $http.get('api/questionnaires')
+        .then(function (response) {
+          return response;
+        });
+    };
+
+    var getByID = function(id) {
       return $http.get('api/questionnaires/' + id)
+        .then(function (response) {
+          return response;
+        });
+    };
+
+    var getByIDForPlay = function(id) {
+      return $http.get('api/questionnaires/play/' + id)
         .then(function (response) {
           return response;
         });
@@ -21,13 +35,6 @@ angular.module('questionnaires').service('QuestionnaireService', ['$http',
 
     var getListOfNames = function() {
       return $http.get('api/questionnaires/names')
-        .then(function (response) {
-          return response;
-        });
-    };
-
-    var getMyCompany = function() {
-      return $http.get('api/questionnaires/loggeduser')
         .then(function (response) {
           return response;
         });
@@ -55,18 +62,31 @@ angular.module('questionnaires').service('QuestionnaireService', ['$http',
     };
 
     var finishPlay = function(data, id) {
-      return $http.post('api/questionnaires/finish/' + id, data)
+      return $http.post('api/questionnaires/play/' + id, data)
+        .then(function (response) {
+          return response;
+        });
+    };
+
+
+    var getQuestionTypes = function() {
+      return $http.get('api/questionnaires/questiontypes')
         .then(function (response) {
           return response;
         });
     };
     
+    docxDocument.get = get;
     docxDocument.getCount = getCount;
+    docxDocument.create = create;
     docxDocument.edit = edit;
     docxDocument.delete = deleteF;
-    docxDocument.getMyCompany = getMyCompany;
+    docxDocument.getByID = getByID;
+    docxDocument.getByIDForPlay = getByIDForPlay;
     docxDocument.finishPlay = finishPlay;
     docxDocument.getListOfNames = getListOfNames;
+
+    docxDocument.getQuestionTypes = getQuestionTypes;
     
     return docxDocument;
   }

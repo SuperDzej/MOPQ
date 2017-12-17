@@ -21,7 +21,7 @@ module.exports = function (sequelize, DataTypes) {
     type: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'input'
+      isIn: ['text', 'yesNo', 'multiChoice', 'singleChoice']
     }
   }, {
     associate: function (models) {

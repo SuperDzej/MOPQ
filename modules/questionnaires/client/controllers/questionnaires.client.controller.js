@@ -30,7 +30,6 @@ angular.module('questionnaires')
     // Find a list of CertificateFactory
     $scope.find = function () {
       $scope.questionnaires = QuizFactory.query();
-      console.log($scope.questionnaires);
     };
 
     $scope.questions = [{
@@ -43,21 +42,23 @@ angular.module('questionnaires')
       var newItemNo = $scope.questions.length + 1;
       $scope.questions.push({
         'id': 'question' + newItemNo,
-        type: 'input',
+        type: '',
         options: []
       });
     };
 
-    $scope.addNewAnswer = function ($event) {
+    $scope.addNewOption = function ($event) {
       $event.preventDefault();
       var options = $scope.questions[$scope.questions.length - 1].options;
       var newItemNo = options.length + 1;
       $scope.questions[$scope.questions.length - 1].options.push({
         'id': 'option' + newItemNo
       });
+
+      const oneElement = 1;
       //Just show popover first time
-      if ($scope.questions.length === 1 && 
-        $scope.questions[0].options.length === 1) {
+      if ($scope.questions.length === oneElement && 
+        $scope.questions[0].options.length === oneElement) {
         $scope.$$postDigest(function () {
           showPopover();
         });
@@ -71,7 +72,6 @@ angular.module('questionnaires')
 
     $scope.create = function (isValid) {
       $scope.questionnaire.questions = $scope.questions;
-
       QuestionnaireService.create($scope.questionnaire)
         .then(function (response) {
           $scope.createdSuccessfully = true;
@@ -118,8 +118,10 @@ angular.module('questionnaires')
         });
     };
 
-    $scope.questionTypes = [];
-    $scope.questionTypes.push({ id: 0, type: 'input' });
-    
+    QuestionnaireService.getQuestionTypes()
+      .then(function(response){
+        $scope.questionTypes = response.data;
+        console.log($scope.questionTypes);
+      });
   }
 ]);

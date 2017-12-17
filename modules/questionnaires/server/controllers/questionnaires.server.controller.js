@@ -6,8 +6,10 @@
 var path = require('path'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   db = require(path.resolve('./config/lib/sequelize')).models,
+  questionnaireService = require('../services/questionnaire.server.service.js'),
   Questionnaire = db.questionnaire,
   QuestionnaireOption = db.questionOption,
+  QuestionAnswer = db.questionAnswer,
   QuestionnairePlay = db.questionnairePlay,
   Question = db.question;
 
@@ -22,7 +24,7 @@ exports.create = function (req, res) {
   var insertOpts = {
     validate: true,
     individualHooks: true,
-    fields: ['name', 'createdAt', 'updatedAt']
+    fields: ['name', 'type', 'createdAt', 'updatedAt']
   };
 
   /**
@@ -38,7 +40,7 @@ exports.create = function (req, res) {
           errors: 'Could not create the questionnaire'
         });
       }
-      
+
       insertOpts.fields = ['name', 'isCorrect', 'createdAt', 'updatedAt'];
       questionsArr.forEach(function (question, index) {
         let questionOptions = question.options;
@@ -72,7 +74,7 @@ exports.create = function (req, res) {
               message: errorHandler.getErrorMessage(err)
             });
           });
-      }).catch(function(err) {
+      }).catch(function (err) {
         return res.status(400).send({
           message: errorHandler.getErrorMessage(err)
         });
@@ -87,27 +89,61 @@ exports.create = function (req, res) {
 /**
  * Saving information about how user played the quiz and what answers he gave
  */
-exports.finishPlay = function(req, res) {
+exports.finishPlay = function (req, res) {
   req.body.userId = req.user.id;
 
   req.body.questionnaireId = req.questionnaire.id;
-  let quizPlay = req.body;
-  console.log(quizPlay);
-  QuestionnairePlay.create(quizPlay)
-  .then(function(quizPlayR) {
-    res.json(quizPlayR);
-  }).catch(function(err){
-    return res.status(400).send({
-      message: errorHandler.getErrorMessage(err)
+  let rQuizPlay = req.body;
+  let rAnswers = req.body.answers;
+
+  QuestionnairePlay.create(rQuizPlay)
+    .then(function (quizPlay) {
+      console.log(rAnswers);
+      return QuestionAnswer
+        .bulkCreate(rAnswers)
+        .then(answers => {
+          return quizPlay.setAnswers(answers)
+            .then(function (response) {
+              res.json(quizPlay);
+            });
+        }).catch(function (err) {
+          return res.status(422).send({
+            message: errorHandler.getErrorMessage(err)
+          });
+        });
+    }).catch(function (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
     });
-  });
 };
+
+
+/**
+ * Show the current questionnaire for user to play
+ */
+exports.readForPlay = function (req, res) {
+  // removing all info about correctnes of options
+  for (let i = 0; i < req.questionnaire.questions.length; i++) {
+    let question = req.questionnaire.questions[i];
+    for (let j = 0; j < question.options.length; j++) {
+      question.options[j].isCorrect = undefined;
+    }
+  }
+  res.json(req.questionnaire);
+};
+
 
 /**
  * Show the current questionnaire
  */
 exports.read = function (req, res) {
   res.json(req.questionnaire);
+};
+
+exports.questionTypes = function (req, res) {
+  let questionTypes = questionnaireService.getQuestionTypes();
+  res.json(questionTypes);
 };
 
 /**
@@ -164,7 +200,7 @@ exports.delete = function (req, res) {
  * List of Questionnaires
  */
 exports.list = function (req, res) {
-  Questionnaire.findAll().then(function (questionnaires) {//{ include: [{ model: db.user, attributes: ['']} }
+  Questionnaire.findAll().then(function (questionnaires) { //{ include: [{ model: db.user, attributes: ['']} }
     if (!questionnaires) {
       return res.status(404).send({
         message: 'No questionnaires found'
@@ -179,82 +215,48 @@ exports.list = function (req, res) {
 
 /**
  * Quiz middleware
- *
+ */
 exports.questionnaireByIDForPlay = function (req, res, next, id) {
-  if ((id % 1 === 0) === false) { //check if it's integer
-    return res.status(404).send({
-      message: 'Questionnaire id is invalid'
-    });
-  }
+  questionnaireService.questionnaireById(id, function (err, questionnaire) {
+    if (err) {
+      return res.status(400).send(err);
+    }
 
-  Quiz.findById(id)
-    .populate({
-      path: 'questions',
-      populate: {
-        path: 'options',
-        model: 'QuestionOption'
+    QuestionnairePlay.find({
+      where: {
+        questionnaireId: id,
+        userId: req.user.id
       }
-    })
-    .exec(function (error, quiz) {
-      if(error) {
+    }).then(function (quizPlay) {
+      //User already played this quiz and no need to play it again
+      if (quizPlay) {
         return res.status(400).send({
-          message: errorHandler.getErrorMessage(error)
+          message: 'You have already finished this questionnaire, please choose other'
         });
       }
 
-      QuizPlay.find({ quiz: id }, function(error, quizPlay) {
-        if(error) {
-          return res.status(400).send({
-            message: errorHandler.getErrorMessage(error)
-          });
-        }
-        //User already played this quiz and no need to play it again
-        if(quizPlay) {
-          return res.status(400).send({
-            message: 'You have already played this quiz'
-          });
-        }
-
-        req.quiz = quiz;
-        next();
-      });
+      req.questionnaire = questionnaire;
+      next();
+    }).catch(function(err) {
+      if (err) {
+        return res.status(422).send({
+          message: errorHandler.getErrorMessage(err)
+        });
+      }
     });
-};*/
+  });
+};
 
 /**
  * Questionnaire middleware
  */
 exports.questionnaireByID = function (req, res, next, id) {
-
-  if ((id % 1 === 0) === false) { //check if it's integer
-    return res.status(404).send({
-      message: 'Questionnaire id is invalid'
-    });
-  }
-  Questionnaire.find({
-    where: {
-      id: id
-    },
-    include: [{
-      model: db.question,
-      as: 'questions', 
-      include: [{
-        model: db.questionOption, 
-        as: 'options' 
-      }]
-    }]
-  }).then(function (questionnaire) {
-    if (!questionnaire) {
-      return res.status(404).send({
-        message: 'No questionnaire with that identifier has been found'
-      });
-    } else {
-      console.log('Got by id');
-      req.questionnaire = questionnaire;
-      next();
+  questionnaireService.questionnaireById(id, function (err, questionnaire) {
+    if (err) {
+      return res.status(400).send(err);
     }
-  }).catch(function (err) {
-    return next(err);
-  });
 
+    req.questionnaire = questionnaire;
+    next();
+  });
 };
