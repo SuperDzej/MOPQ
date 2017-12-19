@@ -4,9 +4,37 @@ angular
   .module('questionnaires')
   .directive('customQuestionnaireSubmit', ['$parse', function ($parse) {
 
-    var checkIfNumberOfCorrectOptionsIsValid = function(scope, type, options) {
-      var questionType = scope.questionTypes.filter(questionType => questionType.type === type);
-      
+    let checkIfNumberOfOptionsIsValid = function (scope, question) {
+      let questionType = scope.questionTypes.find(questionType => questionType.type === question.type);
+      // No entry in configuration for this type
+      if (questionType === undefined || questionType.numOptions === undefined) {
+        return {
+          valid: true,
+          error: null
+        };
+      }
+
+      return {
+        valid: questionType.numOptions === question.options.length,
+        error: 'Please add correct number of options: ' + questionType.numOptions
+      };
+    };
+
+    let checkIfNumberOfCorrectOptionsIsValid = function (scope, question) {
+      let questionType = scope.questionTypes.find(questionType => questionType.type === question.type);
+      // No entry in configuration for this type
+      if (questionType === undefined || questionType.numCorrect === undefined) {
+        return {
+          valid: true,
+          error: null
+        };
+      }
+
+      let numIsCorrect = question.options.filter(option => option.isCorrect === true).length;
+      return {
+        valid: questionType.numCorrect === numIsCorrect,
+        error: 'Please add correct number of correct options: ' + questionType.numCorrect
+      };
     };
 
     return {
@@ -18,18 +46,27 @@ angular
         element.bind('submit', function (event) {
           var questionHasAnswerIndexes = [];
           //Validate if every question has atleast one answer
-          for (var i = 0; i < scope.questions.length; i++) {
+          for (let i = 0; i < scope.questions.length; i++) {
+            let numOptionsValid = checkIfNumberOfOptionsIsValid(scope, scope.questions[i]);
             if (scope.questions[i].options.length === 0) {
               formCtrl['qQuestion' + i].$invalid = true;
               formCtrl['qQuestion' + i].$valid = false;
-              formCtrl['qQuestion' + i].$error.option = 'Please add atlease one answer per question';
-            }else {
+              formCtrl['qQuestion' + i].$error.option = 'Please add at least one answer per question';
+            } else if (scope.questions[i].type === undefined) {
+              formCtrl['qQuestion' + i].$invalid = true;
+              formCtrl['qQuestion' + i].$valid = false;
+              formCtrl['qQuestion' + i].$error.option = 'Please select question type';
+            } else if (!numOptionsValid.valid) {
+              formCtrl['qQuestion' + i].$invalid = true;
+              formCtrl['qQuestion' + i].$valid = false;
+              formCtrl['qQuestion' + i].$error.option = numOptionsValid.error;
+            } else {
               questionHasAnswerIndexes.push(i);
             }
           }
 
           //If it has remove all errors from that question
-          for(i = 0;i < questionHasAnswerIndexes.length;i++) {
+          for (let i = 0; i < questionHasAnswerIndexes.length; i++) {
             formCtrl['qQuestion' + questionHasAnswerIndexes[i]].$invalid = false;
             formCtrl['qQuestion' + questionHasAnswerIndexes[i]].$error = {};
           }
@@ -39,7 +76,7 @@ angular
           formCtrl.qDescription.$touched = true;
           formCtrl.qDuration.$touched = true;
 
-          if(questionHasAnswerIndexes.length !== scope.questions.length) {
+          if (questionHasAnswerIndexes.length !== scope.questions.length) {
             scope.$apply();
             return false;
           }

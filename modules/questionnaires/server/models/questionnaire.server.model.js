@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
 
   var Questionnaire = sequelize.define('questionnaire', {
     id: {
@@ -21,9 +21,13 @@ module.exports = function(sequelize, DataTypes) {
     description: DataTypes.TEXT,
     duration: DataTypes.INTEGER
   }, {
-    associate: function(models) {
+    associate: function (models) {
       Questionnaire.belongsTo(models.user);
-      Questionnaire.hasMany(models.question, { as: 'questions' });
+      Questionnaire.hasMany(models.question, {
+        as: 'questions',
+        onDelete: 'cascade',
+        hooks: true
+      });
     }
   });
 

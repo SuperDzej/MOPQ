@@ -6,7 +6,10 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
     $scope.authentication = Authentication;
     $rootScope.mainTitle = 'Questionnaires';
     $scope.quizFinished = false;
-    var answerStorageKey = 'answers', finishedStorageKey = 'finished', greenBackgroundClass = 'greenBackground', mainBackgroundClass = 'mainBackground';
+    var answerStorageKey = 'answers',
+      finishedStorageKey = 'finished',
+      greenBackgroundClass = 'greenBackground',
+      mainBackgroundClass = 'mainBackground';
     var vm = this;
     $scope.questionnaire = {};
     $scope.currentQuestion = 0;
@@ -24,7 +27,7 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
 
       QuestionnaireService.getByIDForPlay(id)
         .then(function (response) {
-          if(response.status === 200) {
+          if (response.status === 200) {
             $scope.questionnaire = response.data;
             /* var answers = $localstorage.getObject(answerStorageKey);
             if (answers.length !== undefined) {
@@ -34,19 +37,18 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
             // When user tries to navigate from the page
             addLocationChangeListener();
             $scope.startTime = new Date();
-          }
-          else {
+          } else {
             alert(response.data);
           }
         }, function (error) {
           var sweetAlert = SweetAlert.swal("Error!", error.data.message);
-          setTimeout(function() {
+          setTimeout(function () {
             $window.location.href = '/';
           }, 2000);
         });
     };
 
-    var addLocationChangeListener = function() {
+    var addLocationChangeListener = function () {
       $scope.$on('$locationChangeStart', function (event, next, current) {
         if (current) {
           var answer = confirm('Are you sure you want to exit questionnaire?');
@@ -74,10 +76,10 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
 
     var registerAnswer = function () {
       var question = $scope.questionnaire.questions[$scope.currentQuestion];
-      for(let i = 0;i < question.options.length;i++) {
-        
+      for (let i = 0; i < question.options.length; i++) {
+
         var option = question.options[i];
-        if(option.answer !== undefined && option.answer !== 'No') {
+        if (option.answer !== undefined && option.answer !== 'No') {
           $scope.answers.push({
             questionOptionId: option.id,
             questionId: question.id,
@@ -99,30 +101,32 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
       $scope.currentQuestion = value;
 
       if (value >= $scope.questionnaire.questions.length) {
-        if($scope.answers.length < $scope.questionnaire.questions.length) {
+        if ($scope.answers.length < $scope.questionnaire.questions.length) {
           $scope.currentQuestion--;
           alert('Please answer all questions');
           return false;
         }
-        
+
         $scope.finishQuiz();
         return;
       }
     };
 
     $scope.finishQuiz = function () {
-      $scope.quizFinished = true;
-      $scope.currentQuestion = $scope.questionnaire.questions.length;
-
       var data = {
         answers: $scope.answers,
         started: $scope.startTime,
         questionnaire: $scope.questionnaire.id
       };
 
-      QuestionnaireService.finishPlay(data, $scope.questionnaire.id)
+      QuestionnaireService.calculatePlayScore(data, $scope.questionnaire.id)
         .then(function (response) {
-          console.log(response.data);
+          $scope.scoreMessage = response.data.message;
+          QuestionnaireService.finishPlay(data, $scope.questionnaire.id)
+            .then(function (response) {
+              $scope.quizFinished = true;
+              $scope.currentQuestion = $scope.questionnaire.questions.length;
+            });
         });
     };
 
@@ -136,7 +140,7 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
     });
 
     QuestionnaireService.getQuestionTypes()
-      .then(function(response) {
+      .then(function (response) {
         $scope.questionTypes = response.data;
       });
   }

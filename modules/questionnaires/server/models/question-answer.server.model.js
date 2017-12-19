@@ -21,6 +21,10 @@ module.exports = function (sequelize, DataTypes) {
     associate: function (models) {
         QuestionAnswer.belongsTo(models.question, { onDelete: 'cascade' });
         QuestionAnswer.belongsTo(models.questionOption);
+        QuestionAnswer.belongsTo(models.questionnairePlay, {
+          foreignKeyConstraint: true, 
+          onDelete: 'cascade'
+        });
     }
   });
 

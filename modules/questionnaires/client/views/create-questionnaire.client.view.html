@@ -53,15 +53,16 @@
                     </div>
                     <div class="margin10 marginTop0 row" ng-class="{ 'has-error': quizForm.qQuestion{{$index}}.$invalid }">
                       <div class="form-group row text-danger" ng-messages="quizForm.qQuestion{{$index}}.$error">
-                        <p class="help-block col-md-offset-1" ng-show="quizForm.qQuestion{{$index}}.$error.option">Please add atlease one option per question</p>
+                        <p class="help-block col-md-offset-1" ng-bind="quizForm.qQuestion{{$index}}.$error.option"></p>
                       </div>
                       <div class="col-md-6" ng-repeat="option in question.options">
-                        <p class="col-md-3 optionNumber">{{$index + 1}}</p>
-                        <div class="input-group col-md-9">
+                        <p class="col-md-2 optionNumber">{{$index + 1}}</p>
+                        <button class="btn btn-danger col-md-1" style="margin-right:5px;" ng-show="$last" ng-click="removeQuestionOption($parent.$index)">-</button>
+                        <div class="input-group col-md-8">
                           <span class="input-group-addon">
                             <input class="qAnswer{{$index}}" name="qAnswer{{$index}}" type="checkbox" aria-label="Checkbox for following text input" ng-model="option.isCorrect">
                           </span>
-                          <input name="qAnswer" class="form-control col-md-9" type="text" ng-model="option.name" placeholder="Enter option for question {{$index + 1}}" >
+                          <input name="qAnswer" class="form-control col-md-9" type="text" ng-model="option.name" placeholder="Enter option for question {{$index + 1}}" />
                         </div>
                       </div>
                     </div>

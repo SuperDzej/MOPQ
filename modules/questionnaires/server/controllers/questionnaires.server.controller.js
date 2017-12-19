@@ -63,10 +63,8 @@ exports.finishPlay = function (req, res) {
       return QuestionAnswer
         .bulkCreate(rAnswers)
         .then(answers => {
-          console.log(answers);
           return quizPlay.setAnswers(answers)
             .then(function (response) {
-              console.log(response);
               res.json(quizPlay);
             });
         }).catch(function (err) {
@@ -79,6 +77,28 @@ exports.finishPlay = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     });
+};
+
+/**
+ * Saving information about how user played the quiz and what answers he gave
+ */
+exports.calculateNumberOfCorrectAnswers = function (req, res) {
+  req.body.userId = req.user.id;
+  questionnaireService.questionnaireById(req.questionnaire.id, function (err, questionnaire) {
+    if (err) {
+      return res.status(400).send(err);
+    }
+    let answers = req.body.answers;
+    let correctAnswers = answers.filter(function(answer) { 
+      // Filtering out options and comparing them to what user entered to find if option that user selected is same as option that is saved as correct in database
+      let question = questionnaire.questions.filter(question => question.options.filter(option => option.name === answer.name && 
+        option.id === answer.questionOptionId && option.isCorrect).length !== 0);
+      return question.length !== 0;
+   });
+    res.json({
+      message: 'You have answered correctly ' + correctAnswers.length + ' questions'
+    });
+  });
 };
 
 
@@ -141,15 +161,15 @@ exports.delete = function (req, res) {
   Questionnaire.findById(questionnaire.id)
     .then(function (questionnaire) {
       if (questionnaire) {
-
-        // Delete the questionnaire
-        questionnaire.destroy().then(function () {
-          return res.json(questionnaire);
-        }).catch(function (err) {
-          return res.status(400).send({
-            message: errorHandler.getErrorMessage(err)
+        // Delete the questionnaire, other related models will delete on cascade
+        questionnaire.destroy()
+          .then(function () {
+            return res.json(questionnaire);
+          }).catch(function (err) {
+            return res.status(400).send({
+              message: errorHandler.getErrorMessage(err)
+            });
           });
-        });
 
       } else {
         return res.status(400).send({

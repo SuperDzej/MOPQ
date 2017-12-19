@@ -25,10 +25,11 @@ module.exports = function (sequelize, DataTypes) {
     }
   }, {
     associate: function (models) {
-      Question.belongsTo(models.questionnaire, { onDelete: 'cascade' });
-      Question.hasMany(models.questionOption, {
-        as: 'options'
+      Question.belongsTo(models.questionnaire, {
+        foreignKeyConstraint: true, 
+        onDelete: 'cascade'
       });
+      Question.hasMany(models.questionOption, { as: 'options', onDelete: 'cascade', hooks: true });
     }
   });
 

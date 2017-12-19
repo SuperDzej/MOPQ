@@ -16,7 +16,9 @@ module.exports = function (sequelize, DataTypes) {
       QuestionnairePlay.belongsTo(models.user);
       QuestionnairePlay.belongsTo(models.questionnaire, { onDelete: 'cascade' });
       QuestionnairePlay.hasMany(models.questionAnswer, {
-        as: 'answers'
+        as: 'answers', 
+        onDelete: 'cascade', 
+        hooks: true
       });
     }
   });

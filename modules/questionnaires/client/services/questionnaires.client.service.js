@@ -68,6 +68,12 @@ angular.module('questionnaires').service('QuestionnaireService', ['$http',
         });
     };
 
+    var calculatePlayScore = function(data, id) {
+      return $http.post('api/questionnaires/play/score/' + id, data)
+        .then(function (response) {
+          return response;
+        });
+    };
 
     var getQuestionTypes = function() {
       return $http.get('api/questionnaires/questiontypes')
@@ -84,6 +90,7 @@ angular.module('questionnaires').service('QuestionnaireService', ['$http',
     docxDocument.getByID = getByID;
     docxDocument.getByIDForPlay = getByIDForPlay;
     docxDocument.finishPlay = finishPlay;
+    docxDocument.calculatePlayScore = calculatePlayScore;
     docxDocument.getListOfNames = getListOfNames;
 
     docxDocument.getQuestionTypes = getQuestionTypes;

@@ -23,7 +23,10 @@ module.exports = function (sequelize, DataTypes) {
     }
   }, {
     associate: function (models) {
-      QuestionOption.belongsTo(models.question, { onDelete: 'cascade' });
+      QuestionOption.belongsTo(models.question, {
+        foreignKeyConstraint: true, 
+        onDelete: 'cascade'
+      });
     }
   });
 

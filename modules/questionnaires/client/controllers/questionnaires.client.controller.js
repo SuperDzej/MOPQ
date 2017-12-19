@@ -37,6 +37,7 @@ angular.module('questionnaires')
       options: []
     }];
 
+    // START Add or remove question or option 
     $scope.addNewQuestion = function ($event) {
       $event.preventDefault();
       var newItemNo = $scope.questions.length + 1;
@@ -67,8 +68,24 @@ angular.module('questionnaires')
 
     $scope.removeQuestion = function () {
       var lastItem = $scope.questions.length - 1;
+      if(lastItem === 0)
+      {
+        return;
+      }
+
       $scope.questions.splice(lastItem);
     };
+
+    $scope.removeQuestionOption = function (questionIndex) {
+      var lastItem = $scope.questions[questionIndex].options.length - 1;
+      if(lastItem === 0)
+      {
+        return;
+      }
+
+      $scope.questions[questionIndex].options.splice(lastItem);
+    };
+    // END Add or remove question or option 
 
     $scope.create = function (isValid) {
       $scope.questionnaire.questions = $scope.questions;
@@ -93,7 +110,7 @@ angular.module('questionnaires')
         });
     };
 
-    $scope.delete = function (questionnaire) {
+    $scope.delete = function (questionnaire, index) {
       var id = questionnaire.id;
       var sweetAlert = SweetAlert.swal({
           title: 'Are you sure?',
@@ -108,8 +125,8 @@ angular.module('questionnaires')
           if (confirmation) {
             QuestionnaireService.delete(id, questionnaire)
               .then(function (response) {
-                SweetAlert.close();
-                window.href = baseUrl;
+                $scope.questionnaires.splice(index, 1);
+                SweetAlert.swal("Successfully deleted questionnaire!");
               }, function (error) {
                 SweetAlert.close();
                 console.log(error);
@@ -119,7 +136,7 @@ angular.module('questionnaires')
     };
 
     QuestionnaireService.getQuestionTypes()
-      .then(function(response){
+      .then(function(response) {
         $scope.questionTypes = response.data;
         console.log($scope.questionTypes);
       });

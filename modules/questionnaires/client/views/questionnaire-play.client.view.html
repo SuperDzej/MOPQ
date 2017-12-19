@@ -32,12 +32,12 @@
             <span class="questionOptionNumber" ng-bind="$index + 1"></span>
           </span>
           <div ng-if="questionnaire.questions[currentQuestion].type === 'text'">
-            <input id="text_{{ $parent.$id }}" class="form-control answerText" name="text_{{$index}}" type="text" placeholder="{{option.name}}" ng-model="option.answer" />
+            <input id="text_{{ $parent.$id }}" class="form-control answerText" name="text_{{$index}}" type="text" placeholder="Enter your answer here" ng-model="option.answer" />
           </div>
           
           <div ng-if="questionnaire.questions[currentQuestion].type === 'yesNo'">
             <div class="col-md-2">
-              <input id="yesNo" class="form-control" type="radio" name="yesNo" ng-model="option.answer" ng-value="yesNo"  
+              <input id="yesNo" class="form-control" type="checkbox" name="yesNo" ng-model="option.answer" ng-value="yesNo"  
               ng-true-value="'{{option.name}}'" ng-false-value="'No'"/>
             </div>
             <div class="col-md-10">
@@ -69,6 +69,7 @@
     </div>
     <div ng-show="currentQuestion === questionnaire.questions.length" class="text-center questionnaireFinished">
       <p class="quizFinishedText">You have finished questionnaire</p>
+      <p ng-bind="scoreMessage"></p>
     </div>
     <div class="form-group" ng-show="currentQuestion < questionnaire.questions.length">
       <button class="btn btn-primary btn-medium" ng-hide="currentQuestion === 0" ng-click="switchQuestion('--')">Previous</button>

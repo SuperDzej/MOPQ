@@ -19,6 +19,9 @@ module.exports = function(app) {
     .get(questionnaires.readForPlay)
     .post(questionnaires.finishPlay);
 
+  app.route('/api/questionnaires/play/score/:questionnaireIdForPlay').all(questionnairesPolicy.isAllowed)
+    .post(questionnaires.calculateNumberOfCorrectAnswers);
+
   app.route('/api/questionnaires/questiontypes').all(questionnairesPolicy.isAllowed)
     .get(questionnaires.questionTypes);
 
