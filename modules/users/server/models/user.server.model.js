@@ -140,8 +140,8 @@ module.exports = function(sequelize, DataTypes) {
   };
 
   User.associate = function(models) {
-    if (models.article) {
-      User.hasMany(models.article);
+    if (models.questionnaire) {
+      User.hasMany(models.questionnaire);
     }
   };
 

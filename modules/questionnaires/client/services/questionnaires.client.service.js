@@ -1,6 +1,6 @@
 'use strict';
 
-//Articles service used for communicating with the articles REST endpoints
+//Questionnaires service used for communicating with the articles REST endpoints
 angular.module('questionnaires').service('QuestionnaireService', ['$http',
   function ($http) {
     var docxDocument = {};

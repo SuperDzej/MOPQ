@@ -46,7 +46,7 @@ describe('User CRUD tests', function() {
     _user.salt = _user.makeSalt();
     _user.hashedPassword = _user.encryptPassword(credentials.password, _user.salt);
 
-    // Save a user to the test db and create new article
+    // Save a user to the test db and create new questionnaire
     _user.save().then(function(err) {
       should.not.exist((err) ? null : 'false');
       done();

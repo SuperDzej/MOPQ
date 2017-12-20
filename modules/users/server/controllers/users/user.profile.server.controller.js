@@ -61,7 +61,7 @@ exports.update = function(req, res, next) {
           }).then(function(user) {
             if (user && user.email.toLowerCase() === userInfo.email.toLowerCase()) {
               return res.status(400).send({
-                message: 'Username already exists'
+                message: 'Email already exists'
               });
             }
             done(null);

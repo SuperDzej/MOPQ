@@ -3,6 +3,7 @@
 var path = require('path'),
     errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
     db = require(path.resolve('./config/lib/sequelize')).models,
+    config = require(path.resolve('./config/config')),
     Questionnaire = db.questionnaire,
     QuestionnaireOption = db.questionOption,
     QuestionnairePlay = db.questionnairePlay,
@@ -46,7 +47,7 @@ exports.createQuestions = function(questionsArr, callback) {
         }, null);
       }
 
-      callback(null, questions);
+      return callback(null, questions);
     }).catch(function (err) {
       return callback({
         message: errorHandler.getErrorMessage(err)
@@ -69,6 +70,8 @@ exports.createQuestionOptions = function(questionsArr, questions, callback) {
         .bulkCreate(questionOptions, insertOpts)
         .then(function (options) {
           return questions[index].setOptions(options);
+        }).then(function (setOptions) {
+          return setOptions;
         });
     })(question, questionOptions, index);
 
@@ -86,31 +89,14 @@ exports.createQuestionOptions = function(questionsArr, questions, callback) {
 };
 
 exports.getQuestionTypes = function () {
-    let questionTypes = [{
-        type: 'text',
-        description: 'Text',
-        numOptions: 1,
-        numCorrect: 1
-    }, {
-        type: 'yesNo',
-        description: 'Yes - No',
-        numOptions: 2,
-        numCorrect: 1
-    }, {
-        type: 'multiChoice',
-        description: 'Multiple Choice'
-    }, {
-        type: 'singleChoice',
-        description: 'Single Choice',
-        numCorrect: 1
-    }];
+    let questionTypes = config.questionTypes;
 
     return questionTypes;
 };
 
 exports.questionnaireById = function (id, callback) {
     if ((id % 1 === 0) === false) { // check if it's integer
-      callback({
+      return callback({
         message: 'Questionnaire id is invalid'
       }, null);
     }
@@ -129,13 +115,13 @@ exports.questionnaireById = function (id, callback) {
       }]
     }).then(function (questionnaire) {
       if (!questionnaire) {
-        callback({
+        return callback({
           message: 'No questionnaire with that identifier has been found'
         }, null);
       } else {
-        callback(null, questionnaire);
+        return callback(null, questionnaire);
       }
     }).catch(function (err) {
-      callback(err, null);
+      return callback(err, null);
     });
   };

@@ -37,8 +37,8 @@
           
           <div ng-if="questionnaire.questions[currentQuestion].type === 'yesNo'">
             <div class="col-md-2">
-              <input id="yesNo" class="form-control" type="checkbox" name="yesNo" ng-model="option.answer" ng-value="yesNo"  
-              ng-true-value="'{{option.name}}'" ng-false-value="'No'"/>
+              <input class="form-control" type="radio" name="yesNo" ng-model="option.answer" ng-value="option.name"  
+              ng-change="removeExtraAnswerModels($parent.$index, $index, option)" />
             </div>
             <div class="col-md-10">
               <label ng-bind="option.name"></label>
@@ -57,8 +57,8 @@
 
           <div ng-if="questionnaire.questions[currentQuestion].type === 'singleChoice'">
             <div class="col-md-2">
-              <input id="singleChoice_{{ $parent.$id }}" class="form-control" type="checkbox" name="singleChoice" ng-model="option.answer" 
-              ng-value="option.name" ng-true-value="'{{option.name}}'" ng-false-value="'No'"/>
+              <input class="form-control" type="radio" name="singleChoice" ng-model="option.answer" 
+              ng-value="option.name" ng-change="removeExtraAnswerModels($parent.$index, $index, option)" />
             </div>
             <div class="col-md-10">
               <label ng-bind="option.name"></label>

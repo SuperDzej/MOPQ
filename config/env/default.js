@@ -29,5 +29,23 @@ module.exports = {
   sessionKey: 'MopQSes324@42.@23',
   sessionCollection: 'sessions',
   logo: 'modules/core/client/img/brand/logo.png',
-  favicon: 'modules/core/client/img/brand/favicon.ico'
+  favicon: 'modules/core/client/img/brand/favicon.ico',
+  questionTypes: [{
+    type: 'text',
+    description: 'Text',
+    numOptions: 1,
+    numCorrect: 1
+  }, {
+    type: 'yesNo',
+    description: 'Yes - No',
+    numOptions: 2,
+    numCorrect: 1
+  }, {
+    type: 'multiChoice',
+    description: 'Multiple Choice'
+  }, {
+    type: 'singleChoice',
+    description: 'Single Choice',
+    numCorrect: 1
+  }]
 };

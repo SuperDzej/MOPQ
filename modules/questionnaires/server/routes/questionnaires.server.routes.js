@@ -10,7 +10,7 @@ var path = require('path'),
 
 module.exports = function(app) {
 
-  // Articles collection routes
+  // Questionnaires collection routes
   app.route('/api/questionnaires').all(questionnairesPolicy.isAllowed)
     .get(questionnaires.list)
     .post(questionnaires.create);

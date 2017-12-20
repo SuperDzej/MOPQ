@@ -32,8 +32,9 @@ describe('Questionnaire Model Unit Tests:', function() {
 
     user.save().then(function(user) {
       questionnaire = Questionnaire.build({
-        title: 'Questionnaire Title',
-        content: 'Questionnaire Content',
+        name: 'Questionnaire name',
+        description: 'Questionnaire description',
+        duration: 23,
         userId: user.id
       });
       done();
@@ -51,7 +52,10 @@ describe('Questionnaire Model Unit Tests:', function() {
       questionnaire.save().then(function(err) {
         should.not.exist((err) ? null : err);
         done();
-      }).catch(function(err) {});
+      }).catch(function(err) {
+        console.log(err);
+        done();
+      });
 
     });
 

@@ -1,9 +1,9 @@
 'use strict';
 
-// Configuring the Articles module
+// Configuring the Questionnaires module
 angular.module('questionnaires').run(['Menus',
   function (Menus) {
-    // Add the articles dropdown item
+    // Add the questionnaires dropdown item
     Menus.addMenuItem('topbar', {
       title: 'Questionnaires',
       state: 'questionnaires',

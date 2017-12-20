@@ -5,14 +5,14 @@ var should = require('should'),
   path = require('path'),
   sequelize = require(path.resolve('./config/lib/sequelize-connect')),
   db = require(path.resolve('./config/lib/sequelize')).models,
-  Questionnaire = db.article,
+  Questionnaire = db.questionnaire,
   User = db.user,
   express = require(path.resolve('./config/lib/express'));
 
 /**
  * Globals
  */
-var app, agent, credentials, user, article;
+var app, agent, credentials, user, questionnaire;
 
 /**
  * Questionnaire routes tests
@@ -47,20 +47,20 @@ describe('Questionnaire CRUD tests', function() {
     user.provider = 'local';
     user.roles = ['admin', 'user'];
 
-    // Save a user to the test db and create new article
+    // Save a user to the test db and create new questionnaire
     user.save().then(function(user) {
-      article = Questionnaire.build();
-      article = {
-        title: 'Questionnaire Title',
-        content: 'Questionnaire Content',
+      questionnaire = Questionnaire.build();
+      questionnaire = {
+        name: 'Questionnaire Title',
+        description: 'Questionnaire Content',
         userId: user.id
       };
       done();
-    }).catch(function(err) {});
+    }).catch(function(err) { done(err); });
 
   });
 
-  it('should be able to save an article if logged in', function(done) {
+  it('should be able to save an questionnaire if logged in', function(done) {
     agent.post('/api/auth/signin')
       .send(credentials)
       .expect(200)
@@ -74,13 +74,13 @@ describe('Questionnaire CRUD tests', function() {
         // Get the userId
         var userId = user.id;
 
-        // Save a new article
+        // Save a new questionnaire
         agent.post('/api/articles')
-          .send(article)
+          .send(questionnaire)
           .expect(200)
           .end(function(articleSaveErr, articleSaveRes) {
 
-            // Handle article save error
+            // Handle questionnaire save error
             if (articleSaveErr) {
               return done(articleSaveErr);
             }
@@ -89,7 +89,7 @@ describe('Questionnaire CRUD tests', function() {
             agent.get('/api/articles')
               .end(function(articlesGetErr, articlesGetRes) {
 
-                // Handle article save error
+                // Handle questionnaire save error
                 if (articlesGetErr) {
                   return done(articlesGetErr);
                 }
@@ -98,7 +98,7 @@ describe('Questionnaire CRUD tests', function() {
                 var articles = articlesGetRes.body;
 
                 //(articles[0].userId).should.equal(userId);
-                (articles[0].title).should.match('Questionnaire Title');
+                (articles[0].description).should.match('Questionnaire Title');
 
                 // Call the assertion callback
                 done();
@@ -107,7 +107,7 @@ describe('Questionnaire CRUD tests', function() {
       });
   });
 
-  it('should not be able to save an article if not logged in', function(done) {
+  it('should not be able to save an questionnaire if not logged in', function(done) {
     agent.get('/api/auth/signout')
       .expect(302) //because of redirect
       .end(function(signoutErr, signoutRes) {
@@ -118,7 +118,7 @@ describe('Questionnaire CRUD tests', function() {
         }
 
         agent.post('/api/articles')
-          .send(article)
+          .send(questionnaire)
           .expect(403)
           .end(function(articleSaveErr, articleSaveRes) {
             // Call the assertion callback
@@ -127,9 +127,9 @@ describe('Questionnaire CRUD tests', function() {
       });
   });
 
-  it('should not be able to save an article if no title is provided', function(done) {
-    // Invalidate title field
-    article.title = '';
+  it('should not be able to save an questionnaire if no description is provided', function(done) {
+    // Invalidate description field
+    questionnaire.description = '';
 
     agent.post('/api/auth/signin')
       .send(credentials)
@@ -144,21 +144,21 @@ describe('Questionnaire CRUD tests', function() {
         // Get the userId
         var userId = user.id;
 
-        // Save a new article
+        // Save a new questionnaire
         agent.post('/api/articles')
-          .send(article)
+          .send(questionnaire)
           .expect(400)
           .end(function(articleSaveErr, articleSaveRes) {
 
             // Set message assertion
-            (articleSaveRes.body.message).should.match('Questionnaire title must be between 1 and 250 characters in length');
-            // Handle article save error
+            (articleSaveRes.body.message).should.match('Questionnaire description must be between 1 and 250 characters in length');
+            // Handle questionnaire save error
             done(articleSaveErr);
           });
       });
   });
 
-  it('should be able to update an article if signed in', function(done) {
+  it('should be able to update an questionnaire if signed in', function(done) {
     agent.post('/api/auth/signin')
       .send(credentials)
       .expect(200)
@@ -172,32 +172,32 @@ describe('Questionnaire CRUD tests', function() {
         // Get the userId
         var userId = user.id;
 
-        // Save a new article
+        // Save a new questionnaire
         agent.post('/api/articles')
-          .send(article)
+          .send(questionnaire)
           .expect(200)
           .end(function(articleSaveErr, articleSaveRes) {
-            // Handle article save error
+            // Handle questionnaire save error
             if (articleSaveErr) {
               return done(articleSaveErr);
             }
 
-            // Update article title
-            article.title = 'WHY YOU GOTTA BE SO SEAN?';
+            // Update questionnaire description
+            questionnaire.description = 'WHY YOU GOTTA BE SO SEAN?';
 
-            // Update an existing article
+            // Update an existing questionnaire
             agent.put('/api/articles/' + articleSaveRes.body.id)
-              .send(article)
+              .send(questionnaire)
               .expect(200)
               .end(function(articleUpdateErr, articleUpdateRes) {
-                // Handle article update error
+                // Handle questionnaire update error
                 if (articleUpdateErr) {
                   return done(articleUpdateErr);
                 }
 
                 // Set assertions
                 (articleUpdateRes.body.id).should.equal(articleSaveRes.body.id);
-                (articleUpdateRes.body.title).should.match('WHY YOU GOTTA BE SO SEAN?');
+                (articleUpdateRes.body.description).should.match('WHY YOU GOTTA BE SO SEAN?');
 
                 // Call the assertion callback
                 done();
@@ -207,11 +207,11 @@ describe('Questionnaire CRUD tests', function() {
   });
 
   it('should be able to get a list of articles if not signed in', function(done) {
-    article.title = 'Questionnaire Title';
-    // Create new article model instance
-    var articleObj = Questionnaire.build(article);
+    questionnaire.description = 'Questionnaire Title';
+    // Create new questionnaire model instance
+    var articleObj = Questionnaire.build(questionnaire);
 
-    // Save the article
+    // Save the questionnaire
     articleObj.save().then(function() {
       // Request articles
       request(app).get('/api/articles')
@@ -227,16 +227,16 @@ describe('Questionnaire CRUD tests', function() {
     }).catch(function(err) {});
   });
 
-  it('should be able to get a single article if not signed in', function(done) {
-    // Create new article model instance
-    var articleObj = Questionnaire.build(article);
+  it('should be able to get a single questionnaire if not signed in', function(done) {
+    // Create new questionnaire model instance
+    var articleObj = Questionnaire.build(questionnaire);
 
-    // Save the article
+    // Save the questionnaire
     articleObj.save().then(function() {
       request(app).get('/api/articles/' + articleObj.id)
         .end(function(req, res) {
           // Set assertion
-          res.body.should.be.instanceof(Object).and.have.property('title', article.title);
+          res.body.should.be.instanceof(Object).and.have.property('description', questionnaire.description);
 
           // Call the assertion callback
           done();
@@ -244,7 +244,7 @@ describe('Questionnaire CRUD tests', function() {
     }).catch(function(err) {});
   });
 
-  it('should return proper error for single article with an invalid Id, if not signed in', function(done) {
+  it('should return proper error for single questionnaire with an invalid Id, if not signed in', function(done) {
     // test is not a valid mongoose Id
     request(app).get('/api/articles/test')
       .end(function(req, res) {
@@ -256,19 +256,19 @@ describe('Questionnaire CRUD tests', function() {
       });
   });
 
-  it('should return proper error for single article which doesnt exist, if not signed in', function(done) {
-    // This is a valid mongoose Id but a non-existent article
+  it('should return proper error for single questionnaire which doesnt exist, if not signed in', function(done) {
+    // This is a valid mongoose Id but a non-existent questionnaire
     request(app).get('/api/articles/123567890')
       .end(function(req, res) {
         // Set assertion
-        res.body.should.be.instanceof(Object).and.have.property('message', 'No article with that identifier has been found');
+        res.body.should.be.instanceof(Object).and.have.property('message', 'No questionnaire with that identifier has been found');
 
         // Call the assertion callback
         done();
       });
   });
 
-  it('should be able to delete an article if signed in', function(done) {
+  it('should be able to delete an questionnaire if signed in', function(done) {
     agent.post('/api/auth/signin')
       .send(credentials)
       .expect(200)
@@ -282,25 +282,25 @@ describe('Questionnaire CRUD tests', function() {
         // Get the userId
         var userId = user.id;
 
-        // Save a new article
+        // Save a new questionnaire
         agent.post('/api/articles')
-          .send(article)
+          .send(questionnaire)
           .expect(200)
           .end(function(articleSaveErr, articleSaveRes) {
 
 
-            // Handle article save error
+            // Handle questionnaire save error
             if (articleSaveErr) {
               return done(articleSaveErr);
             }
 
-            // Delete an existing article
+            // Delete an existing questionnaire
             agent.delete('/api/articles/' + articleSaveRes.body.id)
-              .send(article)
+              .send(questionnaire)
               .expect(200)
               .end(function(articleDeleteErr, articleDeleteRes) {
 
-                // Handle article error error
+                // Handle questionnaire error error
                 if (articleDeleteErr) {
                   return done(articleDeleteErr);
                 }
@@ -315,16 +315,16 @@ describe('Questionnaire CRUD tests', function() {
       });
   });
 
-  it('should not be able to delete an article if not signed in', function(done) {
-    // Set article user
-    article.userId = user.id;
+  it('should not be able to delete an questionnaire if not signed in', function(done) {
+    // Set questionnaire user
+    questionnaire.userId = user.id;
 
-    // Create new article model instance
-    var articleObj = Questionnaire.build(article);
+    // Create new questionnaire model instance
+    var articleObj = Questionnaire.build(questionnaire);
 
-    // Save the article
+    // Save the questionnaire
     articleObj.save().then(function() {
-      // Try deleting article
+      // Try deleting questionnaire
       request(app).delete('/api/articles/' + articleObj.id)
         .expect(403)
         .end(function(articleDeleteErr, articleDeleteRes) {
@@ -332,7 +332,7 @@ describe('Questionnaire CRUD tests', function() {
           // Set message assertion
           (articleDeleteRes.body.message).should.match('User is not authorized');
 
-          // Handle article error error
+          // Handle questionnaire error error
           done(articleDeleteErr);
         });
 

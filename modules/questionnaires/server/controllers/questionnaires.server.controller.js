@@ -54,19 +54,20 @@ exports.finishPlay = function (req, res) {
   req.body.userId = req.user.id;
 
   req.body.questionnaireId = req.questionnaire.id;
-  let rQuizPlay = req.body;
+  let rQuestionnairePlay = req.body;
   let rAnswers = req.body.answers;
 
-  QuestionnairePlay.create(rQuizPlay)
-    .then(function (quizPlay) {
+  QuestionnairePlay.create(rQuestionnairePlay)
+    .then(function (questionnairePlay) {
+      // Set questionnaire play id to answers to have reference
+      for(let i = 0;i < rAnswers.length;i++) {
+        rAnswers[i].questionnairePlayId = questionnairePlay.id;
+      }
 
-      return QuestionAnswer
+      QuestionAnswer
         .bulkCreate(rAnswers)
         .then(answers => {
-          return quizPlay.setAnswers(answers)
-            .then(function (response) {
-              res.json(quizPlay);
-            });
+          res.json(questionnairePlay);
         }).catch(function (err) {
           return res.status(422).send({
             message: errorHandler.getErrorMessage(err)
@@ -88,6 +89,7 @@ exports.calculateNumberOfCorrectAnswers = function (req, res) {
     if (err) {
       return res.status(400).send(err);
     }
+
     let answers = req.body.answers;
     let correctAnswers = answers.filter(function(answer) { 
       // Filtering out options and comparing them to what user entered to find if option that user selected is same as option that is saved as correct in database
@@ -129,6 +131,11 @@ exports.read = function (req, res) {
  */
 exports.questionTypes = function (req, res) {
   let questionTypes = questionnaireService.getQuestionTypes();
+  if(!questionTypes) {
+    return res.status(500).send({
+      message: 'Could not load configuration for question types'
+    });
+  }
   res.json(questionTypes);
 };
 
@@ -170,7 +177,6 @@ exports.delete = function (req, res) {
               message: errorHandler.getErrorMessage(err)
             });
           });
-
       } else {
         return res.status(400).send({
           message: 'Unable to find the questionnaire'
@@ -197,7 +203,7 @@ exports.list = function (req, res) {
         res.json(questionnaires);
       }
     }).catch(function (err) {
-      res.jsonp(err);
+      return res.jsonp(err);
     });
 };
 
@@ -215,9 +221,9 @@ exports.questionnaireByIDForPlay = function (req, res, next, id) {
         questionnaireId: id,
         userId: req.user.id
       }
-    }).then(function (quizPlay) {
+    }).then(function (questionnairePlay) {
       // User already played this quiz and no need to play it again
-      if (quizPlay) {
+      if (questionnairePlay) {
         return res.status(400).send({
           message: 'You have already finished this questionnaire, please choose other'
         });

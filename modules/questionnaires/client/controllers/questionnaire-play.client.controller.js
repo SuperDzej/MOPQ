@@ -76,7 +76,7 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
 
     var registerAnswer = function () {
       var question = $scope.questionnaire.questions[$scope.currentQuestion];
-      for (let i = 0; i < question.options.length; i++) {
+      for (var i = 0;i < question.options.length;i++) {
 
         var option = question.options[i];
         if (option.answer !== undefined && option.answer !== 'No') {
@@ -133,6 +133,18 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
     $scope.answers = [];
     $scope.registerAnswer = function (index) {
       registerAnswer(index);
+    };
+
+    // To remove extra options on radio button click
+    $scope.removeExtraAnswerModels = function(questionIndex, optionIndex, option) {
+      let question = $scope.questionnaire.questions[questionIndex];
+      // Remove all other models from database
+      for(let i = 0;i < question.options.length;i++) {
+        if(i !== optionIndex) {
+          question.options[i].answer = undefined;
+        }
+      }
+      console.log(option);
     };
 
     $scope.$on("$destroy", function () {
