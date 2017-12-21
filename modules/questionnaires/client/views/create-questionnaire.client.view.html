@@ -1,0 +1,93 @@
+<section ng-controller="QuestionnaireController" ng-init="getQuestionTypes()">
+  <div class="page-header">
+    <h1>Create</h1>
+  </div>
+  <div class="list-group">
+    <div class="container generate-container">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="panel panel-default">
+            <form class="form-group" name="quizForm" custom-questionnaire-submit="create(quizForm.$valid)" novalidate>
+              <div class="panel-body">
+                <div class="form-group">
+                  <div class="form-group row" ng-class="{ 'has-error':  quizForm.qName.$touched && quizForm.qName.$invalid }">
+                    <label class="form-control-label col-md-2" for="companyName">Name</label>
+                    <div class="col-md-10">
+                      <input id="companyName" class="form-control" id="questionnaire.name" ng-model="questionnaire.name" type="text" placeholder="Enter questionnaire name" name="qName" required /><!-- Angular form uses name property to validate input fields -->
+                    </div>
+                    <div class="form-group row text-danger" ng-messages="quizForm.qName.$error">
+                      <p class="help-block col-md-offset-1" ng-show="quizForm.qName.$invalid && quizForm.qName.$touched">Please enter questionnaire name</p>
+                    </div>
+                  </div>
+                  <div class="form-group row" ng-class="{ 'has-error': quizForm.qDescription.$touched && quizForm.qDescription.$invalid }">
+                    <label class="form-control-label col-md-2" for="description">Description</label>
+                    <div class="col-md-10">
+                      <textarea rows="8" id="description"  name="qDescription"  class="form-control" ng-model="questionnaire.description" type="text" placeholder="Enter questionnaire description" required></textarea>
+                    </div>
+                    <div class="form-group row text-danger" ng-messages="quizForm.qDescription.$error">
+                      <p class="help-block col-md-offset-1" ng-show=" quizForm.qDescription.$touched && quizForm.qDescription.$invalid">Please enter questionnaire description</p>
+                    </div>
+                  </div>
+                  <div class="form-group row" ng-class="{ 'has-error': quizForm.qDuration.$touched && quizForm.qDuration.$invalid }">
+                    <label class="form-control-label col-md-2" for="description">Duration</label>
+                    <div class="col-md-10">
+                      <input id="duration" name="qDuration"  class="form-control" ng-model="questionnaire.duration" type="number" placeholder="Enter questionnaire duration in minutes" required>
+                    </div>
+                    <div class="form-group row text-danger" ng-messages="quizForm.qDuration.$error">
+                      <p class="help-block col-md-offset-1" ng-show="quizForm.qDuration.$touched && quizForm.qDuration.$invalid">Please enter questionnaire description</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="questions">
+                  <fieldset class="form-group" data-ng-repeat="question in questions">
+                    <div class="form-group row marginBottom0">
+                      <label class="form-control-label col-md-2" for="description">Question {{$index + 1}}</label>
+                      <div class="col-md-8">
+                        <input class="form-control qQuestion{{$index}}" name="qQuestion{{$index}}" type="text" ng-model="question.name" placeholder="Enter question" />
+                      </div>
+                      <div class="col-md-2 col-md-2-custom">
+                        <select name="qType" ng-model="question.type" class="form-control col-md-10 questionTypeMargin" id="selectType" ng-options="questionType.type as questionType.description for questionType in questionTypes">
+                        </select>
+                      </div>
+                      <button class="btn btn-danger col-md-1 removeQuestion" ng-show="$last" ng-click="removeQuestion()">-</button> 
+                    </div>
+                    <div class="margin10 marginTop0 row" ng-class="{ 'has-error': quizForm.qQuestion{{$index}}.$invalid }">
+                      <div class="form-group row text-danger" ng-messages="quizForm.qQuestion{{$index}}.$error">
+                        <p class="help-block col-md-offset-1" ng-bind="quizForm.qQuestion{{$index}}.$error.option"></p>
+                      </div>
+                      <div class="col-md-6" ng-repeat="option in question.options">
+                        <p class="col-md-2 optionNumber">{{$index + 1}}</p>
+                        <button class="btn btn-danger col-md-1" style="margin-right:5px;" ng-show="$last" ng-click="removeQuestionOption($parent.$index)">-</button>
+                        <div class="input-group col-md-8">
+                          <span class="input-group-addon">
+                            <input class="qAnswer{{$index}}" name="qAnswer{{$index}}" type="checkbox" aria-label="Checkbox for following text input" ng-model="option.isCorrect">
+                          </span>
+                          <input name="qAnswer" class="form-control col-md-9" type="text" ng-model="option.name" placeholder="Enter option for question {{$index + 1}}" />
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
+                  <div class="margin10 col-md-12 text-center">
+                    <button class="addfields btn btn-default" ng-click="addNewQuestion($event)">Add question</button>
+                    <button class="addfields btn btn-default" ng-click="addNewOption($event)">Add option</button>
+                  </div>
+                </div>
+                <p class="clearfix"></p>
+                <div class="form-group margin10 text-center">
+                  <input class="btn btn-lg btn-primary" type="submit" value="Create"/>
+                </div>
+
+                <div ng-show="error" class="alert alert-danger alert-dismissable text-danger">
+                  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                  <strong>Error!</strong> <span ng-bind="error"></span>
+                </div>
+                <div ng-show="createdSuccessfully" class="alert alert-success alert-dismissable text-success">
+                  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                  <strong>Success!</strong> You have created questionnaire.
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+</section>

@@ -1,0 +1,49 @@
+<section ng-controller="QuestionnaireController" ng-init="getByID()">
+  <div class="page-header">
+    <h1>Edit</h1>
+  </div>
+  <div class="list-group">
+    <div class="container generate-container">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <div class="form-group">
+                <div class="form-group row">
+                  <label class="form-control-label col-md-2" for="quizName">Name</label>
+                  <div class="col-md-10">
+                    <input id="quizName" class="form-control" id="quizName" ng-model="editQuiz.name" ng-value="editQuiz.name" type="text" placeholder="Enter questionnaire name"
+                    />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="form-control-label col-md-2" for="description">Description</label>
+                  <div class="col-md-10">
+                    <textarea rows="8" id="description" class="form-control" ng-model="editQuiz.description" ng-value="editQuiz.description"
+                      type="text" placeholder="Enter questionnaire description"></textarea>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="form-control-label col-md-2" for="quizName">Duration</label>
+                  <div class="col-md-10">
+                    <input id="quizDuration" class="form-control" id="quizDuration" ng-model="editQuiz.duration" ng-value="editQuiz.duration" type="number" placeholder="Enter questionnaire duration"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <button class="btn btn-lg btn-primary" type="button" ng-click="edit(editQuiz)">Save</button>
+              </div>
+
+              <div ng-show="editedSuccessfully" class="alert alert-success alert-dismissable text-success">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>Success!</strong> You have edited questionnaire.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
