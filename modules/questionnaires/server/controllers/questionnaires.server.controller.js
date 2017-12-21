@@ -144,7 +144,6 @@ exports.questionTypes = function (req, res) {
  */
 exports.update = function (req, res) {
   var questionnaire = req.questionnaire;
-
   questionnaire.updateAttributes({
     name: req.body.name,
     description: req.body.description,

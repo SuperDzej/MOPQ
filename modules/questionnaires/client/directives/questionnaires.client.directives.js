@@ -4,8 +4,8 @@ angular
   .module('questionnaires')
   .directive('customQuestionnaireSubmit', ['$parse', function ($parse) {
 
-    let checkIfNumberOfOptionsIsValid = function (scope, question) {
-      let questionType = scope.questionTypes.find(questionType => questionType.type === question.type);
+    var checkIfNumberOfOptionsIsValid = function (scope, question) {
+      var questionType = scope.questionTypes.find(questionType => questionType.type === question.type);
       // No entry in configuration for this type
       if (questionType === undefined || questionType.numOptions === undefined) {
         return {
@@ -20,8 +20,8 @@ angular
       };
     };
 
-    let checkIfNumberOfCorrectOptionsIsValid = function (scope, question) {
-      let questionType = scope.questionTypes.find(questionType => questionType.type === question.type);
+    var checkIfNumberOfCorrectOptionsIsValid = function (scope, question) {
+      var questionType = scope.questionTypes.find(questionType => questionType.type === question.type);
       // No entry in configuration for this type
       if (questionType === undefined || questionType.numCorrect === undefined) {
         return {
@@ -30,7 +30,7 @@ angular
         };
       }
 
-      let numIsCorrect = question.options.filter(option => option.isCorrect === true).length;
+      var numIsCorrect = question.options.filter(option => option.isCorrect === true).length;
       return {
         valid: questionType.numCorrect === numIsCorrect,
         error: 'Please add correct number of correct options: ' + questionType.numCorrect
@@ -46,8 +46,8 @@ angular
         element.bind('submit', function (event) {
           var questionHasAnswerIndexes = [];
           //Validate if every question has atleast one answer
-          for (let i = 0; i < scope.questions.length; i++) {
-            let numOptionsValid = checkIfNumberOfOptionsIsValid(scope, scope.questions[i]);
+          for (var i = 0; i < scope.questions.length; i++) {
+            var numOptionsValid = checkIfNumberOfOptionsIsValid(scope, scope.questions[i]);
             if (scope.questions[i].options.length === 0) {
               formCtrl['qQuestion' + i].$invalid = true;
               formCtrl['qQuestion' + i].$valid = false;
@@ -66,7 +66,7 @@ angular
           }
 
           //If it has remove all errors from that question
-          for (let i = 0; i < questionHasAnswerIndexes.length; i++) {
+          for (i = 0; i < questionHasAnswerIndexes.length; i++) {
             formCtrl['qQuestion' + questionHasAnswerIndexes[i]].$invalid = false;
             formCtrl['qQuestion' + questionHasAnswerIndexes[i]].$error = {};
           }

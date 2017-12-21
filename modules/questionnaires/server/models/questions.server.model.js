@@ -14,7 +14,7 @@ module.exports = function (sequelize, DataTypes) {
       validate: {
         len: {
           args: [1, 200],
-          msg: "Questionnaire name must be between 1 and 200 characters in length"
+          msg: "Question name must be between 1 and 200 characters in length"
         },
       }
     },

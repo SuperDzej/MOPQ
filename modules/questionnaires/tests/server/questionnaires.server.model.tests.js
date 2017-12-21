@@ -59,8 +59,8 @@ describe('Questionnaire Model Unit Tests:', function() {
 
     });
 
-    it('should be able to show an error when try to save without title', function(done) {
-      questionnaire.title = '';
+    it('should be able to show an error when try to save without name', function(done) {
+      questionnaire.name = '';
 
       questionnaire.save().then(function(err) {
         should.exist(null);

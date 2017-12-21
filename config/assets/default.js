@@ -50,6 +50,7 @@ module.exports = {
       'modules/*/client/**/*.js'
     ],
     views: ['modules/*/client/views/**/*.html'],
+    polyfill: 'node_modules/babel-polyfill/dist/polyfill.js',
     templates: ['build/templates.js']
   },
   server: {

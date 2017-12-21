@@ -1,8 +1,8 @@
 'use strict';
 
 // CertificateFactory controller
-angular.module('questionnaires').controller('QuestionnairePlayController', ['$scope', '$rootScope', '$stateParams', '$location', '$localstorage', '$window', 'Authentication', 'QuizFactory', 'QuestionnaireService', 'SweetAlert', 'FileUploader',
-  function ($scope, $rootScope, $stateParams, $location, $localstorage, $window, Authentication, QuizFactory, QuestionnaireService, SweetAlert, FileUploader) {
+angular.module('questionnaires').controller('QuestionnairePlayController', ['$scope', '$rootScope', '$stateParams', '$location', '$localstorage', '$window', 'Authentication', 'Questionnaires', 'QuestionnaireService', 'SweetAlert', 'FileUploader',
+  function ($scope, $rootScope, $stateParams, $location, $localstorage, $window, Authentication, Questionnaires, QuestionnaireService, SweetAlert, FileUploader) {
     $scope.authentication = Authentication;
     $rootScope.mainTitle = 'Questionnaires';
     $scope.quizFinished = false;
@@ -137,14 +137,13 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
 
     // To remove extra options on radio button click
     $scope.removeExtraAnswerModels = function(questionIndex, optionIndex, option) {
-      let question = $scope.questionnaire.questions[questionIndex];
+      var question = $scope.questionnaire.questions[questionIndex];
       // Remove all other models from database
-      for(let i = 0;i < question.options.length;i++) {
+      for(var i = 0;i < question.options.length;i++) {
         if(i !== optionIndex) {
           question.options[i].answer = undefined;
         }
       }
-      console.log(option);
     };
 
     $scope.$on("$destroy", function () {

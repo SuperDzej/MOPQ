@@ -32,6 +32,11 @@ exports.createQuestionnaire = function(bQuestionnaire, questions, callback) {
 };
 
 exports.createQuestions = function(questionsArr, callback) {
+  if(questionsArr === undefined) {
+    return callback({
+      message: 'Please provide questions'
+    }, null);
+  }
   var insertOpts = {
     validate: true,
     individualHooks: true,
@@ -97,7 +102,7 @@ exports.getQuestionTypes = function () {
 exports.questionnaireById = function (id, callback) {
     if ((id % 1 === 0) === false) { // check if it's integer
       return callback({
-        message: 'Questionnaire id is invalid'
+        message: 'Questionnaire is invalid'
       }, null);
     }
   

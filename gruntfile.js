@@ -279,6 +279,4 @@ module.exports = function(grunt) {
 
   // Run the project in production mode
   grunt.registerTask('prod', ['build', 'env:prod', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);
-
-
 };

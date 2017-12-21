@@ -8,21 +8,36 @@ var _ = require('lodash'),
   testAssets = require('./config/assets/test');
 
 // Karma configuration
-module.exports = function(karmaConfig) {
+module.exports = function (karmaConfig) {
   karmaConfig.set({
     // Frameworks to use
     frameworks: ['jasmine'],
     preprocessors: {
+      'modules/*/client/**/**/*.js': ['babel'],
+      'modules/*/tests/client/*.js': ['babel'],
       'modules/*/client/views/**/*.html': ['ng-html2js']
     },
     ngHtml2JsPreprocessor: {
       moduleName: 'mopquestionnaire',
-      cacheIdFromPath: function(filepath) {
+      cacheIdFromPath: function (filepath) {
         return filepath;
       },
     },
+    webpack: {
+      module: {
+        loaders: [{
+          test: /\.js$/,
+          exclude: /node_modules/,
+          loader: 'babel?presets[]=es2015'
+        }]
+      },
+      watch: true
+    },
+    webpackServer: {
+      noInfo: true
+    },
     // List of files / patterns to load in the browser
-    files: _.union(defaultAssets.client.lib.js, defaultAssets.client.lib.tests, defaultAssets.client.js, testAssets.tests.client, defaultAssets.client.views),
+    files: _.union(defaultAssets.client.polyfill, defaultAssets.client.lib.js, defaultAssets.client.lib.tests, defaultAssets.client.js, testAssets.tests.client, defaultAssets.client.views),
     // Test results reporter to use
     // Possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['progress'],

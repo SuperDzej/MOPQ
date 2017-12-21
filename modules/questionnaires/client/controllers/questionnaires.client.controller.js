@@ -2,8 +2,8 @@
 
 // CertificateFactory controller
 angular.module('questionnaires')
-.controller('QuestionnaireController', ['$scope', '$rootScope', '$stateParams', '$location', '$timeout', '$window', 'Authentication', 'QuizFactory', 'QuestionnaireService', 'SweetAlert', 'FileUploader',
-  function ($scope, $rootScope, $stateParams, $location, $timeout, $window, Authentication, QuizFactory, QuestionnaireService, SweetAlert, FileUploader) {
+.controller('QuestionnaireController', ['$scope', '$rootScope', '$stateParams', '$location', '$timeout', '$window', 'Authentication', 'Questionnaires', 'QuestionnaireService', 'SweetAlert', 'FileUploader',
+  function ($scope, $rootScope, $stateParams, $location, $timeout, $window, Authentication, Questionnaires, QuestionnaireService, SweetAlert, FileUploader) {
     $scope.authentication = Authentication;
     var baseUrl = 'questionnaires';
     $rootScope.mainTitle = 'Questionnaires';
@@ -24,12 +24,14 @@ angular.module('questionnaires')
       QuestionnaireService.edit(questionnaire)
         .then(function (response) {
           $scope.editedSuccessfully = true;
+        }).catch(function(error) {
+          $scope.error = error;
         });
     };
 
     // Find a list of CertificateFactory
     $scope.find = function () {
-      $scope.questionnaires = QuizFactory.query();
+      $scope.questionnaires = Questionnaires.query();
     };
 
     $scope.questions = [{
@@ -56,7 +58,7 @@ angular.module('questionnaires')
         'id': 'option' + newItemNo
       });
 
-      const oneElement = 1;
+      var oneElement = 1;
       //Just show popover first time
       if ($scope.questions.length === oneElement && 
         $scope.questions[0].options.length === oneElement) {
@@ -92,7 +94,8 @@ angular.module('questionnaires')
       QuestionnaireService.create($scope.questionnaire)
         .then(function (response) {
           $scope.createdSuccessfully = true;
-          window.location.href = baseUrl;
+          $scope.questionnaire = {};
+          $location.path(baseUrl+ '/' + response.data.id);
         }, function (error) {
           console.log(error);
         });
@@ -135,10 +138,12 @@ angular.module('questionnaires')
         });
     };
 
-    QuestionnaireService.getQuestionTypes()
+    $scope.getQuestionTypes = function() {
+      QuestionnaireService.getQuestionTypes()
       .then(function(response) {
         $scope.questionTypes = response.data;
         console.log($scope.questionTypes);
       });
+    };
   }
 ]);

@@ -1,6 +1,6 @@
 'use strict';
 
-//Questionnaires service used for communicating with the articles REST endpoints
+//Questionnaires service used for communicating with the questionnaire REST endpoints
 angular.module('questionnaires').service('QuestionnaireService', ['$http',
   function ($http) {
     var docxDocument = {};
@@ -48,7 +48,7 @@ angular.module('questionnaires').service('QuestionnaireService', ['$http',
     };
     
     var edit = function(questionnaire) {
-      return $http.put('api/questionnaires/' + questionnaire.id, { questionnaire : questionnaire })
+      return $http.put('api/questionnaires/' + questionnaire.id, questionnaire)
         .then(function (response) {
           return response;
         }); 
