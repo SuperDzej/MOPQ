@@ -9,7 +9,7 @@ var crypto = require('crypto');
 /**
  * A Validation function for local strategy properties
  */
-var validateLocalStrategyProperty = function(property) {
+var validateLocalStrategyProperty = function (property) {
   if (((this.provider !== 'local' && !this.updated) || property.length !== 0) === false) {
     throw new Error('Local strategy failed');
   }
@@ -18,13 +18,13 @@ var validateLocalStrategyProperty = function(property) {
 /**
  * A Validation function for local strategy password
  */
-var validateLocalStrategyPassword = function(password) {
+var validateLocalStrategyPassword = function (password) {
   if ((this.provider !== 'local' || (password && password.length > 6)) === false) {
     throw new Error('One field is missing');
   }
 };
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
   var User = sequelize.define('user', {
     firstName: {
       type: DataTypes.STRING,
@@ -57,21 +57,21 @@ module.exports = function(sequelize, DataTypes) {
         isEmail: {
           msg: 'Please fill a valid email address'
         },
-        isUnique: function(value, next) {
+        isUnique: function (value, next) {
           var self = this;
           User.find({
               where: {
                 email: value
               }
             })
-            .then(function(user) {
+            .then(function (user) {
               // reject if a different user wants to use the same email
               if (user && self.id !== user.id) {
                 return next('Email already exists, please choose another');
               }
               return next();
             })
-            .catch(function(err) {
+            .catch(function (err) {
               return next(err);
             });
         }
@@ -103,43 +103,41 @@ module.exports = function(sequelize, DataTypes) {
     salt: DataTypes.STRING,
     resetPasswordToken: DataTypes.STRING,
     resetPasswordExpires: DataTypes.BIGINT
-  }, {
-    classMethods: {
-      findUniqueUsername: function(email, suffix, callback) {
-        var _this = this;
-        var possibleEmail = email + (suffix || '');
-
-        _this.find({
-          where: {
-            email: possibleEmail
-          }
-        }).then(function(user) {
-          if (!user) {
-            callback(possibleEmail);
-          } else {
-            return _this.findUniqueUsername(email, (suffix || 0) + 1, callback);
-          }
-        });
-      }
-    }
   });
 
-  User.prototype.makeSalt = function() {
+  User.findUniqueUsername = function (email, suffix, callback) {
+    var _this = this;
+    var possibleEmail = email + (suffix || '');
+
+    _this.find({
+      where: {
+        email: possibleEmail
+      }
+    }).then(function (user) {
+      if (!user) {
+        callback(possibleEmail);
+      } else {
+        return _this.findUniqueUsername(email, (suffix || 0) + 1, callback);
+      }
+    });
+  };
+
+  User.prototype.makeSalt = function () {
     return crypto.randomBytes(16).toString('base64');
   };
 
-  User.prototype.authenticate = function(plainText) {
+  User.prototype.authenticate = function (plainText) {
     return this.encryptPassword(plainText, this.salt) === this.hashedPassword;
   };
 
-  User.prototype.encryptPassword = function(password, salt) {
+  User.prototype.encryptPassword = function (password, salt) {
     if (!password || !salt)
       return '';
     salt = new Buffer(salt, 'base64');
     return crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
   };
 
-  User.associate = function(models) {
+  User.associate = function (models) {
     if (models.questionnaire) {
       User.hasMany(models.questionnaire);
     }

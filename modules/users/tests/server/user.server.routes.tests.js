@@ -28,18 +28,17 @@ describe('User CRUD tests', function() {
   beforeEach(function(done) {
     // Create user credentials
     credentials = {
-      email: 'email',
+      email: 'test@test.com',
       password: 'S3@n.jsI$Aw3$0m3'
     };
 
     // Create a new user
 
-    var _user = User.build();
-
+    _user = User.build();
+    _user.id = 3;
     _user.firstName = 'Full';
-    _user._user.lastName = 'Name';
+    _user.lastName = 'Name';
     _user.displayName = 'Full Name';
-    _user.email = 'test@test.com';
     _user.email = credentials.email;
     _user.provider = 'local';
     _user.roles = ["admin", "user"];
@@ -50,25 +49,25 @@ describe('User CRUD tests', function() {
     _user.save().then(function(err) {
       should.not.exist((err) ? null : 'false');
       done();
-    }).catch(function(err) {});
+    }).catch(function(err) { done(err); });
   });
-
-  /* TODO
+/*
+    // TODO
     it('should be able to register a new user', function(done) {
 
-      _user.email = 'register_new_user';
-      _user.email = 'register_new_user_@test.com';
+      _user.email = 'email-test@test.com';
 
       agent.post('/api/auth/signup')
         .send(_user)
         .expect(200)
         .end(function(signupErr, signupRes) {
           // Handle signpu error
+          console.log('Error signup: ' + signupErr);
+          console.log(signupRes);
           if (signupErr) {
             return done(signupErr);
           }
-
-          signupRes.body.email.should.equal(_user.email);
+          
           signupRes.body.email.should.equal(_user.email);
           // Assert a proper profile image has been set, even if by default
           signupRes.body.profileImageURL.should.not.be.empty();
@@ -77,10 +76,10 @@ describe('User CRUD tests', function() {
           signupRes.body.roles.indexOf('user').should.equal(0);
           return done();
         });
-    });
-  */
+    });*/
+  
 
-  /* TODO
+  /* // TODO
     it('should be able to login successfully and logout successfully', function(done) {
       agent.post('/api/auth/signin')
         .send(credentials)
@@ -105,9 +104,9 @@ describe('User CRUD tests', function() {
             });
         });
     });
-  */
+  
 
-  /* TODO
+   // TODO
     it('should not be able to retrieve a list of users if not admin', function(done) {
       agent.post('/api/auth/signin')
         .send(credentials)
@@ -130,9 +129,9 @@ describe('User CRUD tests', function() {
             });
         });
     });
-  */
+  
 
-  /* TODO
+   // TODO
     it('should be able to retrieve a list of users if admin', function(done) {
       user.roles = ['user', 'admin'];
 
@@ -163,9 +162,9 @@ describe('User CRUD tests', function() {
           });
       });
     });
-  */
-
-  /* TODO
+  
+/*
+  // TODO
     it('should be able to get a single user details if admin', function(done) {
       user.roles = ['user', 'admin'];
 
@@ -197,9 +196,9 @@ describe('User CRUD tests', function() {
           });
       });
     });
-  */
+  
 
-  /* TODO
+   // TODO
     it('should be able to update a single user details if admin', function(done) {
       user.roles = ['user', 'admin'];
 
@@ -242,9 +241,9 @@ describe('User CRUD tests', function() {
           });
       }).catch(function(err) {});
     });
-    */
+    
 
-  /* TODO
+  // TODO
     it('should be able to delete a single user if admin', function(done) {
       user.roles = ['user', 'admin'];
 
@@ -275,8 +274,8 @@ describe('User CRUD tests', function() {
               });
           });
       }).catch(function(err) {});
-    });
-    */
+    }); */
+    
 
   afterEach(function(done) {
     _user.destroy().then(function() {

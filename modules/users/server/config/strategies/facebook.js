@@ -7,28 +7,30 @@ var passport = require('passport'),
   FacebookStrategy = require('passport-facebook').Strategy,
   users = require('../../controllers/user.server.controller');
 
-module.exports = function(config) {
+module.exports = function (config) {
   // Use facebook strategy
   passport.use(new FacebookStrategy({
       clientID: config.facebook.clientID,
       clientSecret: config.facebook.clientSecret,
       callbackURL: config.facebook.callbackURL,
       profileFields: ['id', 'name', 'displayName', 'emails', 'photos'],
-      passReqToCallback: true
+      passReqToCallback: true,
+      scope: ['email']
     },
-    function(req, accessToken, refreshToken, profile, done) {
+    function (req, accessToken, refreshToken, profile, done) {
       // Set the provider data and include tokens
       var providerData = profile._json;
       providerData.accessToken = accessToken;
       providerData.refreshToken = refreshToken;
-
+      console.log(profile);
       // Create the user OAuth profile
       var providerUserProfile = {
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
         displayName: profile.displayName,
         email: profile.emails ? profile.emails[0].value : undefined,
-        profileImageURL: (profile.id) ? 'https://graph.facebook.com/' + profile.id + '/picture?type=large' : undefined,
+        username: profile.username || generateUsername(profile),
+        // profileImageURL: (profile.id) ? '//graph.facebook.com/' + profile.id + '/picture?type=large' : undefined,
         provider: 'facebook',
         providerIdentifierField: 'id',
         providerData: providerData
@@ -38,14 +40,15 @@ module.exports = function(config) {
       users.saveOAuthUserProfile(req, providerUserProfile, done);
 
       function generateUsername(profile) {
-        var email = '';
+        var username = '';
 
         if (profile.emails) {
-          email = profile.emails[0].value.split('@')[0];
-        } 
+          username = profile.emails[0].value.split('@')[0];
+        } else if (profile.name) {
+          username = profile.name.givenName[0] + profile.name.familyName;
+        }
 
-        return email.toLowerCase() || undefined;
+        return username.toLowerCase() || undefined;
       }
-    }
-  ));
+    }));
 };

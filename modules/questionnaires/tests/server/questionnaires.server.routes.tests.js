@@ -167,7 +167,6 @@ describe('Questionnaire CRUD tests', function() {
           .send(questionnaire)
           .expect(400)
           .end(function(questionnaireSaveErr, questionnaireSaveRes) {
-            console.log(questionnaireSaveRes.body);
             // Set message assertion
             (questionnaireSaveRes.body.message).should.match('Questionnaire name must be between 1 and 100 characters in length');
             // Handle questionnaire save error

@@ -4,7 +4,7 @@
       <fieldset>
         <div class="form-group text-center">
           <span ng-if="imageURL">
-            <img ng-src="./uploads/users/profile/{{imageURL}}" alt="{{user.displayName}}" class="img-thumbnail user-profile-picture">
+            <img ng-src="{{imageURL}}" alt="{{user.displayName}}" class="img-thumbnail user-profile-picture">
           </span>
           <span ng-if="!imageURL">
             <img ng-src="./modules/core/client/img/brand/favicon.png" alt="{{user.displayName}}" class="img-thumbnail user-profile-picture" />

@@ -122,19 +122,19 @@ describe('User Model Unit Tests:', function() {
     });
 
     // TODO
-    // it('should be able to show an error when trying to update an existing user with a invalid role', function(done) {
-    //   user1.save().then(function(success) {
-    //     should.not.exist((success) ? null : errorHandler.getErrorMessage(success));
-    //     user1.roles = ['invalid-user-role-enum'];
-    //     user1.save().then(function(err) {
-    //       should.exist((err) ? err : null);
-    //       user1.destroy().then(function(err) {
-    //         should.not.exist((err) ? null : errorHandler.getErrorMessage(err));
-    //         done();
-    //       }).catch(function(err) {});
-    //     }).catch(function(err) {});
-    //   }).catch(function(err) {});
-    // });
+    it('should be able to show an error when trying to update an existing user with a invalid role', function(done) {
+      user1.save().then(function(success) {
+        should.not.exist((success) ? null : errorHandler.getErrorMessage(success));
+        user1.roles = ['invalid-user-role-enum'];
+        user1.save().then(function(err) {
+          should.exist((err) ? err : null);
+          user1.destroy().then(function(err) {
+            should.not.exist((err) ? null : errorHandler.getErrorMessage(err));
+            done();
+          }).catch(function(err) {});
+        }).catch(function(err) {});
+      }).catch(function(err) {});
+    });
 
     it('should confirm that saving user model doesnt change the password', function(done) {
       user1.save().then(function(err) {
