@@ -26,6 +26,11 @@ var validateLocalStrategyPassword = function (password) {
 
 module.exports = function (sequelize, DataTypes) {
   var User = sequelize.define('user', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     firstName: {
       type: DataTypes.STRING,
       defaultValue: '',
@@ -102,7 +107,10 @@ module.exports = function (sequelize, DataTypes) {
     },
     salt: DataTypes.STRING,
     resetPasswordToken: DataTypes.STRING,
-    resetPasswordExpires: DataTypes.BIGINT
+    resetPasswordExpires: DataTypes.BIGINT,
+    // Timestamps
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
   });
 
   User.findUniqueUsername = function (email, suffix, callback) {
@@ -134,7 +142,7 @@ module.exports = function (sequelize, DataTypes) {
     if (!password || !salt)
       return '';
     salt = new Buffer(salt, 'base64');
-    return crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
+    return crypto.pbkdf2Sync(password, salt, 100000, 256, 'sha256').toString('base64');
   };
 
   User.associate = function (models) {

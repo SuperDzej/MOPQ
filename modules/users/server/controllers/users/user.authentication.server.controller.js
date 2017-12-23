@@ -24,11 +24,15 @@ var noReturnUrls = [
 exports.signup = function(req, res) {
   // For security measurement we remove the roles from the req.body object
   req.body.roles = undefined;
+  if(!req.body.password) {
+    return res.status(400).send({
+      message: 'Please enter your password'
+    });
+  }
 
   var message = null;
 
   var user = User.build(req.body);
-
   user.provider = 'local';
   user.salt = user.makeSalt();
   user.hashedPassword = user.encryptPassword(req.body.password, user.salt);
@@ -55,9 +59,7 @@ exports.signup = function(req, res) {
  * Signin after passport authentication
  */
 exports.signin = function(req, res, next) {
-
   passport.authenticate('local', function(err, user, info) {
-    console.log(info);
     if (err || !user) {
       res.status(400).send({
         message: err

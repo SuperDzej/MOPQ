@@ -26,9 +26,9 @@ describe('Questionnaire Model Unit Tests:', function() {
     user.firstName = 'Full';
     user.lastName = 'Name';
     user.displayName = 'Full Name';
-    user.email = 'test@test.com';
+    user.email = 'test@gmail.com';
     user.salt = user.makeSalt();
-    user.hashedPassword = user.encryptPassword('S3@n.jsI$Aw3$0m3', user.salt);
+    user.hashedPassword = user.encryptPassword('S3@n.jsI$Aw3$0m12', user.salt);
 
     user.save().then(function(user) {
       questionnaire = Questionnaire.build({
@@ -38,7 +38,7 @@ describe('Questionnaire Model Unit Tests:', function() {
         userId: user.id
       });
       done();
-    }).catch(function(err) {});
+    }).catch(function(err) { done(err); });
 
   });
 
@@ -81,7 +81,7 @@ describe('Questionnaire Model Unit Tests:', function() {
   after(function(done) {
     User.destroy({
         where: {
-          email: 'test@test.com'
+          email: 'test@gmail.com'
         }
       })
       .then(function(success) {

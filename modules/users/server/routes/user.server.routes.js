@@ -9,6 +9,7 @@ module.exports = function(app) {
   app.route('/api/user')
     .get(user.requiresLogin, user.getProfile)
     .put(user.requiresLogin, user.update);
+    
   app.route('/api/user/accounts').delete(user.requiresLogin, user.removeOAuthProvider);
   app.route('/api/user/password').post(user.requiresLogin, user.changePassword);
   app.route('/api/user/picture').post(user.requiresLogin, user.changeProfilePicture);

@@ -25,6 +25,7 @@ module.exports = function() {
         if (!user) {
           return done('Invalid email or password', null, null);
         }
+
         if (!user || !user.authenticate(password)) {
           return done('Invalid email or password', null, null);
         }

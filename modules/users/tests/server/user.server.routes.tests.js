@@ -11,13 +11,13 @@ var should = require('should'),
 /**
  * Globals
  */
-var app, agent, credentials, user, _user, admin;
+var app, agent, credentials, reqUser, dbUser, adminCredentials, admin;
 
 /**
  * User routes tests
  */
-describe('User CRUD tests', function() {
-  before(function(done) {
+describe('User CRUD tests', function () {
+  before(function (done) {
     // Get application
     app = express.init(sequelize);
     agent = request.agent(app);
@@ -25,261 +25,284 @@ describe('User CRUD tests', function() {
     done();
   });
 
-  beforeEach(function(done) {
+  beforeEach(function (done) {
     // Create user credentials
     credentials = {
       email: 'test@test.com',
       password: 'S3@n.jsI$Aw3$0m3'
     };
 
-    // Create a new user
+    adminCredentials = JSON.parse(JSON.stringify(credentials));
 
-    _user = User.build();
-    _user.id = 3;
-    _user.firstName = 'Full';
-    _user.lastName = 'Name';
-    _user.displayName = 'Full Name';
-    _user.email = credentials.email;
-    _user.provider = 'local';
-    _user.roles = ["admin", "user"];
-    _user.salt = _user.makeSalt();
-    _user.hashedPassword = _user.encryptPassword(credentials.password, _user.salt);
+    reqUser = {};
+    // Need to add new user because PostgreSQL can not increment id on same user data
+    reqUser.firstName = 'First';
+    reqUser.lastName = 'Name';
+    reqUser.roles = ["admin", "user"];
+    reqUser.email = 'test@gmail.com';
+    reqUser.password = credentials.password;
+
+    // Create a new user
+    dbUser = User.build(reqUser);
+    dbUser.provider = 'local';
+    dbUser.salt = dbUser.makeSalt();
+    dbUser.hashedPassword = dbUser.encryptPassword(credentials.password, dbUser.salt);
+    dbUser.displayName = dbUser.firstName + ' ' + dbUser.lastName;
 
     // Save a user to the test db and create new questionnaire
-    _user.save().then(function(err) {
+    dbUser.save().then(function (err) {
       should.not.exist((err) ? null : 'false');
       done();
-    }).catch(function(err) { done(err); });
+    }).catch(function (err) {
+      done(err);
+    });
   });
-/*
-    // TODO
-    it('should be able to register a new user', function(done) {
 
-      _user.email = 'email-test@test.com';
+  it('should be able to register a new user', function (done) {
+    reqUser.email = credentials.email;
+    agent.post('/api/auth/signup')
+      .send(reqUser)
+      .expect(200)
+      .end(function (signupErr, signupRes) {
+        // Handle signpu error
+        if (signupErr) {
+          return done(signupErr);
+        }
 
-      agent.post('/api/auth/signup')
-        .send(_user)
-        .expect(200)
-        .end(function(signupErr, signupRes) {
-          // Handle signpu error
-          console.log('Error signup: ' + signupErr);
-          console.log(signupRes);
-          if (signupErr) {
-            return done(signupErr);
-          }
-          
-          signupRes.body.email.should.equal(_user.email);
-          // Assert a proper profile image has been set, even if by default
-          signupRes.body.profileImageURL.should.not.be.empty();
-          // Assert we have just the default 'user' role
-          signupRes.body.roles.should.be.instanceof(Array).and.have.lengthOf(1);
-          signupRes.body.roles.indexOf('user').should.equal(0);
-          return done();
-        });
-    });*/
-  
+        signupRes.body.email.should.equal(reqUser.email);
+        // Assert a proper profile image has been set, even if by default
+        signupRes.body.profileImageURL.should.not.be.empty();
+        // Assert we have just the default 'user' role
+        signupRes.body.roles.should.be.instanceof(Array).and.have.lengthOf(1);
+        signupRes.body.roles.indexOf('user').should.equal(0);
+        return done();
+      });
+  });
 
-  /* // TODO
-    it('should be able to login successfully and logout successfully', function(done) {
+  it('should be able to login successfully and logout successfully', function (done) {
+    agent.post('/api/auth/signin')
+      .send(credentials)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Logout
+        agent.get('/api/auth/signout')
+          .expect(302)
+          .end(function (signoutErr, signoutRes) {
+            if (signoutErr) {
+              return done(signoutErr);
+            }
+
+            signoutRes.redirect.should.equal(true);
+            signoutRes.text.should.equal('Found. Redirecting to /');
+            return done();
+          });
+      });
+  });
+
+  it('should be able to retrieve self user info when logged in', function (done) {
+    agent.post('/api/auth/signin')
+      .send(credentials)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Request list of users
+        agent.get('/api/user/me')
+          .expect(200)
+          .end(function (usersGetErr, usersGetRes) {
+            if (usersGetErr) {
+              return done(usersGetErr);
+            }
+
+            return done();
+          });
+      });
+  });
+
+  it('should be able to retrieve a list of users if not admin', function (done) {
+    agent.post('/api/auth/signin')
+      .send(credentials)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Request list of users
+        agent.get('/api/admin/users')
+          .expect(403)
+          .end(function (usersGetErr, usersGetRes) {
+            if (usersGetErr) {
+              return done(usersGetErr);
+            }
+
+            return done();
+          });
+      });
+  });
+
+  it('should be able to retrieve a list of users if admin', function (done) {
+    adminCredentials.email = dbUser.email;
+    agent.post('/api/auth/signin')
+      .send(adminCredentials)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Request list of users
+        agent.get('/api/admin/users')
+          .expect(200)
+          .end(function (usersGetErr, usersGetRes) {
+            if (usersGetErr) {
+              return done(usersGetErr);
+            }
+            // We have db User and req User that was created via signup form
+            usersGetRes.body.should.be.instanceof(Array).and.have.lengthOf(2);
+
+            // Call the assertion callback
+            return done();
+          });
+      });
+  });
+
+  it('should be able to get a single user details if admin', function (done) {
+    adminCredentials.email = dbUser.email;
+    agent.post('/api/auth/signin')
+      .send(adminCredentials)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Get single user information from the database
+        agent.get('/api/admin/users/' + dbUser.id)
+          .expect(200)
+          .end(function (userInfoErr, userInfoRes) {
+            if (userInfoErr) {
+              return done(userInfoErr);
+            }
+
+            userInfoRes.body.should.be.instanceof(Object);
+            userInfoRes.body.id.should.be.equal(dbUser.id);
+
+            // Call the assertion callback
+            return done();
+          });
+      });
+  });
+
+  it('should be able to update a single user details if admin', function (done) {
+    adminCredentials.email = dbUser.email;
+    agent.post('/api/auth/signin')
+      .send(adminCredentials)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Get single user information from the database
+        var userUpdate = {
+          firstName: 'admin_update_first',
+          lastName: 'admin_update_last',
+          roles: ['admin']
+        };
+
+        agent.put('/api/admin/users/' + dbUser.id)
+          .send(userUpdate)
+          .expect(200)
+          .end(function (userInfoErr, userInfoRes) {
+            if (userInfoErr) {
+              return done(userInfoErr);
+            }
+
+            userInfoRes.body.should.be.instanceof(Object);
+            userInfoRes.body.firstName.should.be.equal('admin_update_first');
+            userInfoRes.body.lastName.should.be.equal('admin_update_last');
+            userInfoRes.body.roles.should.be.instanceof(Array).and.have.lengthOf(1);
+            userInfoRes.body.id.should.be.equal(dbUser.id);
+
+            // Call the assertion callback
+            return done();
+          });
+      });
+  });
+
+  it('should be able to delete a single user if admin', function (done) {
+    // Creating new user which will be admin and used to delete old db User
+    let localUser = User.build(reqUser);
+    localUser.roles = ['user', 'admin'];
+    localUser.email = 'email@email.com';
+    localUser.provider = 'local';
+    localUser.salt = localUser.makeSalt();
+    localUser.hashedPassword = localUser.encryptPassword(credentials.password, localUser.salt);
+    localUser.displayName = dbUser.firstName + ' ' + dbUser.lastName;
+    localUser.id = 6;
+    credentials.email = localUser.email;
+
+    localUser.save().then(function (user) {
       agent.post('/api/auth/signin')
         .send(credentials)
         .expect(200)
-        .end(function(signinErr, signinRes) {
+        .end(function (signinErr, signinRes) {
           // Handle signin error
           if (signinErr) {
             return done(signinErr);
           }
 
-          // Logout
-          agent.get('/api/auth/signout')
-            .expect(302)
-            .end(function(signoutErr, signoutRes) {
-              if (signoutErr) {
-                return done(signoutErr);
+          agent.delete('/api/admin/users/' + dbUser.id)
+            .expect(200)
+            .end(function (userInfoErr, userInfoRes) {
+              if (userInfoErr) {
+                return done(userInfoErr);
               }
 
-              signoutRes.redirect.should.equal(true);
-              signoutRes.text.should.equal('Moved Temporarily. Redirecting to /');
+              userInfoRes.body.should.be.instanceof(Object);
+              userInfoRes.body.id.should.be.equal(dbUser.id);
+
+              // Call the assertion callback
               return done();
             });
         });
+    }).catch(function (err) {
+      should.exist(err);
+      done(err);
     });
-  
+  });
 
-   // TODO
-    it('should not be able to retrieve a list of users if not admin', function(done) {
-      agent.post('/api/auth/signin')
-        .send(credentials)
-        .expect(200)
-        .end(function(signinErr, signinRes) {
-          // Handle signin error
-          if (signinErr) {
-            return done(signinErr);
-          }
-
-          // Request list of users
-          agent.get('/api/users')
-            .expect(403)
-            .end(function(usersGetErr, usersGetRes) {
-              if (usersGetErr) {
-                return done(usersGetErr);
-              }
-
-              return done();
-            });
-        });
-    });
-  
-
-   // TODO
-    it('should be able to retrieve a list of users if admin', function(done) {
-      user.roles = ['user', 'admin'];
-
-      user.save(function(err) {
-        should.not.exist(err);
-        agent.post('/api/auth/signin')
-          .send(credentials)
-          .expect(200)
-          .end(function(signinErr, signinRes) {
-            // Handle signin error
-            if (signinErr) {
-              return done(signinErr);
-            }
-
-            // Request list of users
-            agent.get('/api/users')
-              .expect(200)
-              .end(function(usersGetErr, usersGetRes) {
-                if (usersGetErr) {
-                  return done(usersGetErr);
-                }
-
-                usersGetRes.body.should.be.instanceof(Array).and.have.lengthOf(1);
-
-                // Call the assertion callback
-                return done();
-              });
-          });
-      });
-    });
-  
-/*
-  // TODO
-    it('should be able to get a single user details if admin', function(done) {
-      user.roles = ['user', 'admin'];
-
-      user.save(function(err) {
-        should.not.exist(err);
-        agent.post('/api/auth/signin')
-          .send(credentials)
-          .expect(200)
-          .end(function(signinErr, signinRes) {
-            // Handle signin error
-            if (signinErr) {
-              return done(signinErr);
-            }
-
-            // Get single user information from the database
-            agent.get('/api/users/' + user.id)
-              .expect(200)
-              .end(function(userInfoErr, userInfoRes) {
-                if (userInfoErr) {
-                  return done(userInfoErr);
-                }
-
-                userInfoRes.body.should.be.instanceof(Object);
-                userInfoRes.body.id.should.be.equal(String(user.id));
-
-                // Call the assertion callback
-                return done();
-              });
-          });
-      });
-    });
-  
-
-   // TODO
-    it('should be able to update a single user details if admin', function(done) {
-      user.roles = ['user', 'admin'];
-
-      user.save().then(function(err) {
-        should.not.exist(err);
-        agent.post('/api/auth/signin')
-          .send(credentials)
-          .expect(200)
-          .end(function(signinErr, signinRes) {
-            // Handle signin error
-            if (signinErr) {
-              return done(signinErr);
-            }
-
-            // Get single user information from the database
-
-            var userUpdate = {
-              firstName: 'admin_update_first',
-              lastName: 'admin_update_last',
-              roles: ['admin']
-            };
-
-            agent.put('/api/users/' + user.id)
-              .send(userUpdate)
-              .expect(200)
-              .end(function(userInfoErr, userInfoRes) {
-                if (userInfoErr) {
-                  return done(userInfoErr);
-                }
-
-                userInfoRes.body.should.be.instanceof(Object);
-                userInfoRes.body.firstName.should.be.equal('admin_update_first');
-                userInfoRes.body.lastName.should.be.equal('admin_update_last');
-                userInfoRes.body.roles.should.be.instanceof(Array).and.have.lengthOf(1);
-                userInfoRes.body.id.should.be.equal(String(user.id));
-
-                // Call the assertion callback
-                return done();
-              });
-          });
-      }).catch(function(err) {});
-    });
-    
-
-  // TODO
-    it('should be able to delete a single user if admin', function(done) {
-      user.roles = ['user', 'admin'];
-
-      user.save().then(function(err) {
-        should.not.exist(err);
-        agent.post('/api/auth/signin')
-          .send(credentials)
-          .expect(200)
-          .end(function(signinErr, signinRes) {
-            // Handle signin error
-            if (signinErr) {
-              return done(signinErr);
-            }
-
-            agent.delete('/api/users/' + user.id)
-              //.send(userUpdate)
-              .expect(200)
-              .end(function(userInfoErr, userInfoRes) {
-                if (userInfoErr) {
-                  return done(userInfoErr);
-                }
-
-                userInfoRes.body.should.be.instanceof(Object);
-                userInfoRes.body.id.should.be.equal(String(user.id));
-
-                // Call the assertion callback
-                return done();
-              });
-          });
-      }).catch(function(err) {});
-    }); */
-    
-
-  afterEach(function(done) {
-    _user.destroy().then(function() {
+  afterEach(function (done) {
+    dbUser.destroy().then(function () {
       done();
-    }).catch(function(err) {});
+    }).catch(function (err) {
+      done();
+    });
+  });
+
+  // At the end delete all users from db to avoid leaving users that are registered via post request in database
+  after(function (done) {
+    User.destroy({
+      where: {},
+      truncate: true
+    }).then(function (success) {
+      done();
+    }).catch(function (err) {
+      console.log(err);
+      done();
+    });
   });
 });

@@ -7,14 +7,11 @@ var adminPolicy = require('../policies/admin.server.policy'),
   admin = require('../controllers/admin.server.controller');
 
 module.exports = function(app) {
-  // User route registration first. Ref: #713
-  //require('./user.server.routes.js')(app);
-
-  app.route('/api/admin/user')
+  app.route('/api/admin/users')
     .get(adminPolicy.isAllowed, admin.list);
 
 
-  app.route('/api/admin/user/:userId')
+  app.route('/api/admin/users/:userId')
     .get(adminPolicy.isAllowed, admin.read)
     .put(adminPolicy.isAllowed, admin.update)
     .delete(adminPolicy.isAllowed, admin.delete);
