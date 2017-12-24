@@ -22,7 +22,6 @@ var getUniqueErrorMessage = function(err) {
  */
 exports.getErrorMessage = function(err) {
   var message = '';
-
   if (err.code) {
     switch (err.code) {
       case 11000:
@@ -33,9 +32,9 @@ exports.getErrorMessage = function(err) {
         message = 'Something went wrong';
     }
   } else {
-    for (var errName in err.errors) {
-      if (err.errors[errName].message) {
-        message = err.errors[errName].message;
+    for (let i = 0;i < err.errors.length;i++) {
+      if (err.errors[i].message) {
+        message = err.errors[i].message;
       }
     }
   }

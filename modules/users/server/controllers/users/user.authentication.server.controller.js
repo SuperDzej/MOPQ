@@ -23,12 +23,16 @@ var noReturnUrls = [
  */
 exports.signup = function(req, res) {
   // For security measurement we remove the roles from the req.body object
-  delete req.body.roles;
+  req.body.roles = undefined;
+  if(!req.body.password) {
+    return res.status(400).send({
+      message: 'Please enter your password'
+    });
+  }
 
   var message = null;
 
   var user = User.build(req.body);
-
   user.provider = 'local';
   user.salt = user.makeSalt();
   user.hashedPassword = user.encryptPassword(req.body.password, user.salt);
@@ -55,9 +59,7 @@ exports.signup = function(req, res) {
  * Signin after passport authentication
  */
 exports.signin = function(req, res, next) {
-
   passport.authenticate('local', function(err, user, info) {
-    console.log(info);
     if (err || !user) {
       res.status(400).send({
         message: err
@@ -92,43 +94,35 @@ exports.signout = function(req, res) {
 /**
  * OAuth provider call
  */
-exports.oauthCall = function(strategy, scope) {
-  return function(req, res, next) {
-    // Set redirection path on session.
-    // Do not redirect to a signin or signup page
-    if (noReturnUrls.indexOf(req.query.redirect_to) === -1) {
-      req.session.redirect_to = req.query.redirect_to;
-    }
-    // Authenticate
-    passport.authenticate(strategy, scope)(req, res, next);
-  };
+exports.oauthCall = function (req, res, next) {
+  var strategy = req.params.strategy;
+  // Authenticate
+  passport.authenticate(strategy)(req, res, next);
 };
 
 /**
  * OAuth callback
  */
-exports.oauthCallback = function(strategy) {
-  return function(req, res, next) {
-    // Pop redirect URL from session
-    var sessionRedirectURL = req.session.redirect_to;
-    delete req.session.redirect_to;
+exports.oauthCallback = function (req, res, next) {
+  var strategy = req.params.strategy;
 
-    passport.authenticate(strategy, function(err, user, redirectURL) {
+  // info.redirect_to contains inteded redirect path
+  passport.authenticate(strategy, function (err, user, info) {
+    if (err) {
+      return res.redirect('/authentication/signin?err=' + encodeURIComponent(errorHandler.getErrorMessage(err)));
+    }
+    if (!user) {
+      return res.redirect('/authentication/signin');
+    }
+    req.login(user, function (err) {
       if (err) {
-        return res.redirect('/authentication/signin?err=' + encodeURIComponent(errorHandler.getErrorMessage(err)));
-      }
-      if (!user) {
         return res.redirect('/authentication/signin');
       }
-      req.login(user, function(err) {
-        if (err) {
-          return res.redirect('/authentication/signin');
-        }
-
-        return res.redirect(redirectURL || sessionRedirectURL || '/');
-      });
-    })(req, res, next);
-  };
+      console.log('Info' + info);
+      console.log(user);
+      return res.redirect(info.redirect_to || '/');
+    });
+  })(req, res, next);
 };
 
 /**
@@ -268,7 +262,7 @@ exports.saveOAuthUserProfile = function(req, providerUserProfile, done) {
           } else {
             //New user
             var possibleUsername = providerUserProfile.email || ((providerUserProfile.email) ? providerUserProfile.email.split('@')[0] : '');
-
+            console.log(User);
             User.findUniqueUsername(possibleUsername, null, function(availableUsername) {
 
               var newUser = {};
@@ -305,12 +299,13 @@ exports.saveOAuthUserProfile = function(req, providerUserProfile, done) {
                 function(err, results) {
 
                   if (results) {
+                    console.log(results);
                     //Rename the tmp image
-                    fs.renameSync('./public/uploads/users/profile/' + results[0][0], './public/uploads/users/profile/' + results[0][1], function(err) {
+                    /* fs.renameSync('./public/uploads/users/profile/' + results[0][0], './public/uploads/users/profile/' + results[0][1], function(err) {
                       if (err) return done(false, err);
                     });
 
-                    newUser.profileImageURL = results[0][1];
+                    newUser.profileImageURL = results[0][1]; */
                   }
 
                   newUser.firstName = providerUserProfile.firstName;

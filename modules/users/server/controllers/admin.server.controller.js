@@ -28,17 +28,17 @@ exports.update = function(req, res) {
   }).then(function(user) {
     if (user) {
 
-      user.firstName = req.body.firstName;
-      user.lastName = req.body.lastName;
+      user.firstName = req.body.firstName ? req.body.firstName : req.model.firstName;
+      user.lastName = req.body.lastName ? req.body.lastName : req.model.lastName;
       user.displayName = req.body.firstName + ' ' + req.body.lastName;
-      user.email = req.body.email;
-      user.email = req.body.email;
-      user.roles = req.body.roles;
+      user.email = req.body.email ? req.body.email : req.model.email;
+      user.roles = req.body.roles ? req.body.roles : req.model.roles;
       user.updatedAt = Date.now();
 
       user.save().then(function() {
         res.json(user);
       }).catch(function(err) {
+        console.log(err);
         res.status(400).send({
           message: errorHandler.getErrorMessage(err)
         });
@@ -61,7 +61,6 @@ exports.update = function(req, res) {
  * Delete a user
  */
 exports.delete = function(req, res) {
-
   if (req.user.id === req.model.id) {
     return res.status(400).send({
       message: 'You cannot delete yourself!'
@@ -76,6 +75,7 @@ exports.delete = function(req, res) {
         user.destroy().then(function() {
           return res.json(user);
         }).catch(function(err) {
+          console.log(err);
           return res.status(400).send({
             message: errorHandler.getErrorMessage(err)
           });

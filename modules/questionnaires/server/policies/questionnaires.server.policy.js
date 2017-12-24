@@ -47,6 +47,9 @@ exports.invokeRolesPolicies = function() {
     }, {
       resources: '/api/questionnaires/play/:questionnaireIdForPlay',
       permissions: '*'
+    }, {
+      resources: '/api/questionnaires/play/score/:questionnaireIdForPlay',
+      permissions: '*'
     }]
   }, {
     roles: ['user'],
@@ -62,6 +65,9 @@ exports.invokeRolesPolicies = function() {
     }, {
       resources: '/api/questionnaires/questiontypes',
       permissions: ['get']
+    }, {
+      resources: '/api/questionnaires/play/score/:questionnaireIdForPlay',
+      permissions: ['post']
     }]
   }, {
     roles: ['guest'],
@@ -70,6 +76,12 @@ exports.invokeRolesPolicies = function() {
       permissions: []
     }, {
       resources: '/api/questionnaires/:questionnaireId',
+      permissions: []
+    }, {
+      resources: '/api/questionnaires/play/:questionnaireIdForPlay',
+      permissions: []
+    }, {
+      resources: '/api/questionnaires/questiontypes',
       permissions: []
     }]
   }]);

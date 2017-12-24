@@ -51,8 +51,9 @@ angular
             if (scope.questions[i].options.length === 0) {
               formCtrl['qQuestion' + i].$invalid = true;
               formCtrl['qQuestion' + i].$valid = false;
-              formCtrl['qQuestion' + i].$error.option = 'Please add at least one answer per question';
-            } else if (scope.questions[i].type === undefined) {
+              formCtrl['qQuestion' + i].$error.option = 'Please add at least one option per question';
+            } else if (scope.questions[i].type === undefined || 
+              scope.questions[i].type  === "") {
               formCtrl['qQuestion' + i].$invalid = true;
               formCtrl['qQuestion' + i].$valid = false;
               formCtrl['qQuestion' + i].$error.option = 'Please select question type';

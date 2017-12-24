@@ -8,7 +8,6 @@ var path = require('path'),
 
 var smtpTransport = nodemailer.createTransport(config.mailer.options);
 
-
 /**
  * Render the main application page
  */
@@ -22,6 +21,7 @@ exports.renderIndex = function(req, res) {
  * Render the server error page
  */
 exports.renderServerError = function(req, res) {
+  console.log(req);
   res.status(500).render('modules/core/server/views/500', {
     error: 'Oops! Something went wrong...'
   });
@@ -51,7 +51,6 @@ exports.renderNotFound = function(req, res) {
 };
 
 exports.contact = function(req, res, next) {
-
   //Let's do stuff in steps...
   async.waterfall([
     function(done) {
@@ -101,6 +100,4 @@ exports.contact = function(req, res, next) {
       });
     }
   });
-
-
 };

@@ -21,7 +21,9 @@ module.exports = function (sequelize, DataTypes) {
     type: {
       type: DataTypes.STRING,
       allowNull: false,
-      isIn: ['text', 'yesNo', 'multiChoice', 'singleChoice']
+      validate: {
+        isIn: ['text', 'yesNo', 'multiChoice', 'singleChoice']
+      }
     }
   }, {
     associate: function (models) {

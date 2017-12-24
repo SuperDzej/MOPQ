@@ -16,7 +16,7 @@ angular.module('user').factory('User', ['$resource',
 
 angular.module('user.admin').factory('Admin', ['$resource',
   function($resource) {
-    return $resource('api/admin/user/:userId', {
+    return $resource('api/admin/users/:userId', {
       userId: '@_id'
     }, {
       query: {

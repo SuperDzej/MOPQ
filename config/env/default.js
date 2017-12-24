@@ -30,6 +30,25 @@ module.exports = {
   sessionCollection: 'sessions',
   logo: 'modules/core/client/img/brand/logo.png',
   favicon: 'modules/core/client/img/brand/favicon.ico',
+  aws: {
+    s3: {
+      accessKeyId: process.env.S3_ACCESS_KEY_ID,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+      bucket: process.env.S3_BUCKET
+    }
+  },
+  uploads: {
+    // Storage can be 'local' or 's3'
+    storage: process.env.UPLOADS_STORAGE || 'local',
+    profile: {
+      image: {
+        dest: './modules/users/client/img/profile/uploads/',
+        limits: {
+          fileSize: 1 * 1024 * 1024 // Max file size in bytes (1 MB)
+        }
+      }
+    }
+  },
   questionTypes: [{
     type: 'text',
     description: 'Text',

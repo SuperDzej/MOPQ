@@ -26,11 +26,11 @@ describe('User Model Unit Tests:', function() {
     user1.firstName = 'Full';
     user1.lastName = 'Name';
     user1.displayName = 'Full Name';
-    user1.email = 'test@test.com';
+    user1.email = 'test@hotmail.com';
     user1.provider = 'local';
     user1.roles = ["user"];
     user1.salt = user1.makeSalt();
-    user1.hashedPassword = user1.encryptPassword('S3@n.jsI$Aw3$0m3', user1.salt);
+    user1.hashedPassword = user1.encryptPassword('S3@n.jsI$Aw3$0m343', user1.salt);
 
     // user2 is a clone of user1
     user2 = user1;
@@ -40,23 +40,23 @@ describe('User Model Unit Tests:', function() {
     user3.firstName = 'Different';
     user3.lastName = 'User';
     user3.displayName = 'Full Different Name';
-    user3.email = 'test3@test.com';
+    user3.email = 'test3@tests.com';
     user3.provider = 'local';
     user3.roles = ["guest"];
     user3.salt = user3.makeSalt();
-    user3.hashedPassword = user3.encryptPassword('Different_Password1', user3.salt);
+    user3.hashedPassword = user3.encryptPassword('Different_Password1!', user3.salt);
 
   });
 
   describe('Method Save', function() {
 
     // TODO
-    // it('should begin with no users', function(done) {
-    //   User.find({}).then(function(users) {
-    //     users.should.have.length(0);
-    //     done();
-    //   }).catch(function(err) {});
-    // });
+    it('should begin with no users', function(done) {
+      User.findAll().then(function(users) {
+        users.should.have.length(0);
+        done();
+      }).catch(function(err) { done(); });
+    });
 
     it('should be able to save without problems', function(done) {
       user1.save().then(function(success) {
@@ -122,19 +122,19 @@ describe('User Model Unit Tests:', function() {
     });
 
     // TODO
-    // it('should be able to show an error when trying to update an existing user with a invalid role', function(done) {
-    //   user1.save().then(function(success) {
-    //     should.not.exist((success) ? null : errorHandler.getErrorMessage(success));
-    //     user1.roles = ['invalid-user-role-enum'];
-    //     user1.save().then(function(err) {
-    //       should.exist((err) ? err : null);
-    //       user1.destroy().then(function(err) {
-    //         should.not.exist((err) ? null : errorHandler.getErrorMessage(err));
-    //         done();
-    //       }).catch(function(err) {});
-    //     }).catch(function(err) {});
-    //   }).catch(function(err) {});
-    // });
+    it('should be able to show an error when trying to update an existing user with a invalid role', function(done) {
+      user1.save().then(function(success) {
+        should.not.exist((success) ? null : errorHandler.getErrorMessage(success));
+        user1.roles = ['invalid-user-role-enum'];
+        user1.save().then(function(err) {
+          should.exist((err) ? err : null);
+          user1.destroy().then(function(err) {
+            should.not.exist((err) ? null : errorHandler.getErrorMessage(err));
+            done();
+          }).catch(function(err) {});
+        }).catch(function(err) {});
+      }).catch(function(err) {});
+    });
 
     it('should confirm that saving user model doesnt change the password', function(done) {
       user1.save().then(function(err) {

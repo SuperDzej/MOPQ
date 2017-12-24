@@ -16,7 +16,7 @@ exports.verify = function(response, cb) {
     if (err) {
       console.log('reCaptcha error', err);
       cb(err);
-    } else if (body.success !== true) {
+    } else if (!body.success) {
       cb(body);
     }
 

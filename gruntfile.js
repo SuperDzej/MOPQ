@@ -182,12 +182,23 @@ module.exports = function(grunt) {
         options: {
           print: 'detail',
           coverage: true,
-          require: 'test.js',
+          require: ['test.js'],
           coverageFolder: 'coverage',
           reportFormats: ['cobertura', 'lcovonly'],
           check: {
             lines: 40,
             statements: 40
+          }
+        }
+      }
+    },
+    istanbul_check_coverage: {
+      default: {
+        options: {
+          coverageFolder: 'coverage*', // will check both coverage folders and merge the coverage results
+          check: {
+            lines: 80,
+            statements: 80
           }
         }
       }
@@ -231,6 +242,7 @@ module.exports = function(grunt) {
 
   // Load NPM tasks
   require('load-grunt-tasks')(grunt);
+  grunt.loadNpmTasks('grunt-mocha-istanbul');
 
   // Make sure upload directory exists
   grunt.task.registerTask('mkdir:upload', 'Task that makes sure upload directory exists.', function() {
@@ -269,7 +281,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test:client', ['env:test', 'lint', 'server', 'karma:unit']);
 
   // Run project coverage
-  //grunt.registerTask('coverage', ['env:test', 'lint', 'mocha_istanbul:coverage']);
+  grunt.registerTask('coverage', ['env:test', 'lint', 'mocha_istanbul:coverage']);
 
   // Run the project in development mode
   grunt.registerTask('default', ['env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);
