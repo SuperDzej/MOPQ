@@ -192,6 +192,17 @@ module.exports = function(grunt) {
         }
       }
     },
+    istanbul_check_coverage: {
+      default: {
+        options: {
+          coverageFolder: 'coverage*', // will check both coverage folders and merge the coverage results
+          check: {
+            lines: 80,
+            statements: 80
+          }
+        }
+      }
+    },
     karma: {
       unit: {
         configFile: 'karma.conf.js'
@@ -231,6 +242,7 @@ module.exports = function(grunt) {
 
   // Load NPM tasks
   require('load-grunt-tasks')(grunt);
+  grunt.loadNpmTasks('grunt-mocha-istanbul');
 
   // Make sure upload directory exists
   grunt.task.registerTask('mkdir:upload', 'Task that makes sure upload directory exists.', function() {

@@ -38,14 +38,30 @@ describe('Core URI tests', function () {
       });
   });
 
-  it('should return not found if invalid url is triggered', function (done) {
-    agent.post('/api/auth/signin/invalid')
+  it('should return error html if invalid POST url is triggered', function (done) {
+    agent.post('/api/auth/user/load')
       .expect(404)
       .end(function (signinErr, signinRes) {
         // Handle signin error
         if (signinErr) {
           return done(signinErr);
         }
+
+        should.equal(signinRes.res.text, '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot POST /api/auth/user/load</pre>\n</body>\n</html>\n');
+
+        done();
+      });
+  });
+
+  it('should return not found page if invalid GET url is triggered', function (done) {
+    agent.get('/api/auth/user/load')
+      .expect(404)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+        signinRes.res.text.should.containEql('/api/auth/user/load is not a valid path');
         done();
       });
   });
@@ -63,105 +79,70 @@ describe('Core URI tests', function () {
   });
 });
 
-
 describe('Core error service tests', function () {
 
-  it('should be able to return unique error message', function (done) {
-    let message = errorHandler.getErrorMessage(new Error('Some random message!'));
-    should.equal(message, '');
-    done(message);
-  });
-/*
-  it('should be able to retrieve a list of users if admin', function (done) {
-    adminCredentials.email = dbUser.email;
-    agent.post('/api/auth/signin')
-      .send(adminCredentials)
-      .expect(200)
-      .end(function (signinErr, signinRes) {
-        // Handle signin error
-        if (signinErr) {
-          return done(signinErr);
-        }
-
-        // Request list of users
-        agent.get('/api/admin/users')
-          .expect(200)
-          .end(function (usersGetErr, usersGetRes) {
-            if (usersGetErr) {
-              return done(usersGetErr);
-            }
-            // We have db User and req User that was created via signup form
-            usersGetRes.body.should.be.instanceof(Array).and.have.lengthOf(2);
-
-            // Call the assertion callback
-            return done();
-          });
-      });
+  it('should be able to return error message when passed correct error object', function (done) {
+    let message = errorHandler.getErrorMessage({
+      errors: [{
+        message: 'This is some message of error'
+      }]
+    });
+    should.equal(message, 'This is some message of error');
+    done();
   });
 
-  it('should be able to get a single user details if admin', function (done) {
-    adminCredentials.email = dbUser.email;
-    agent.post('/api/auth/signin')
-      .send(adminCredentials)
-      .expect(200)
-      .end(function (signinErr, signinRes) {
-        // Handle signin error
-        if (signinErr) {
-          return done(signinErr);
-        }
 
-        // Get single user information from the database
-        agent.get('/api/admin/users/' + dbUser.id)
-          .expect(200)
-          .end(function (userInfoErr, userInfoRes) {
-            if (userInfoErr) {
-              return done(userInfoErr);
-            }
-
-            userInfoRes.body.should.be.instanceof(Object);
-            userInfoRes.body.id.should.be.equal(dbUser.id);
-
-            // Call the assertion callback
-            return done();
-          });
-      });
+  it('should be able to return unique error message when passed correct error object', function (done) {
+    let message = errorHandler.getErrorMessage({
+      code: 11000,
+      errmsg: 'This is some message of error'
+    });
+    should.equal(message, 'T already exists');
+    done();
   });
 
-  it('should be able to update a single user details if admin', function (done) {
-    adminCredentials.email = dbUser.email;
-    agent.post('/api/auth/signin')
-      .send(adminCredentials)
-      .expect(200)
-      .end(function (signinErr, signinRes) {
-        // Handle signin error
-        if (signinErr) {
-          return done(signinErr);
-        }
+  it('should be able to return custom message when error code is invalid', function (done) {
+    let message = errorHandler.getErrorMessage({
+      code: 16252,
+      errmsg: 'This is some message of error'
+    });
+    should.equal(message, 'Something went wrong');
+    done();
+  });
 
-        // Get single user information from the database
-        var userUpdate = {
-          firstName: 'admin_update_first',
-          lastName: 'admin_update_last',
-          roles: ['admin']
-        };
+  it('should be able to return error message if unique field already exists in error', function (done) {
+    let message = errorHandler.getErrorMessage({
+      code: 11000,
+      errmsg: undefined
+    });
+    should.equal(message, 'Unique field already exists');
+    done();
+  });
+  /*
+    it('should be able to retrieve a list of users if admin', function (done) {
+      adminCredentials.email = dbUser.email;
+      agent.post('/api/auth/signin')
+        .send(adminCredentials)
+        .expect(200)
+        .end(function (signinErr, signinRes) {
+          // Handle signin error
+          if (signinErr) {
+            return done(signinErr);
+          }
 
-        agent.put('/api/admin/users/' + dbUser.id)
-          .send(userUpdate)
-          .expect(200)
-          .end(function (userInfoErr, userInfoRes) {
-            if (userInfoErr) {
-              return done(userInfoErr);
-            }
+          // Request list of users
+          agent.get('/api/admin/users')
+            .expect(200)
+            .end(function (usersGetErr, usersGetRes) {
+              if (usersGetErr) {
+                return done(usersGetErr);
+              }
+              // We have db User and req User that was created via signup form
+              usersGetRes.body.should.be.instanceof(Array).and.have.lengthOf(2);
 
-            userInfoRes.body.should.be.instanceof(Object);
-            userInfoRes.body.firstName.should.be.equal('admin_update_first');
-            userInfoRes.body.lastName.should.be.equal('admin_update_last');
-            userInfoRes.body.roles.should.be.instanceof(Array).and.have.lengthOf(1);
-            userInfoRes.body.id.should.be.equal(dbUser.id);
-
-            // Call the assertion callback
-            return done();
-          });
-      });
-  });*/
+              // Call the assertion callback
+              return done();
+            });
+        });
+    });*/
 });

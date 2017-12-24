@@ -50,9 +50,6 @@ describe('Questionnaire CRUD tests', function () {
 
     // Save a user to the test db and create new questionnaire
     user.save().then(function (user) {
-      questionnaire = Questionnaire.build();
-      question = Question.build();
-      option = QuestionOption.build();
       option = {
         name: 'First option',
         isCorrect: false
@@ -79,7 +76,6 @@ describe('Questionnaire CRUD tests', function () {
   });
 
   it('should be able to save an questionnaire if logged in', function (done) {
-    this.timeout(5000);
     agent.post('/api/auth/signin')
       .send(credentials)
       .expect(200)
@@ -112,7 +108,6 @@ describe('Questionnaire CRUD tests', function () {
                 if (questionnairesGetErr) {
                   return done(questionnairesGetErr);
                 }
-
 
                 // Get questionnaires list
                 var questionnaires = questionnairesGetRes.body;
@@ -233,7 +228,7 @@ describe('Questionnaire CRUD tests', function () {
     // Save the questionnaire
     questionnaireObj.save().then(function () {
       // Request questionnaires
-      request(app).get('/api/questionnaires')
+      agent.get('/api/questionnaires')
         .expect(403)
         .end(function (req, res) {
           done();
@@ -250,7 +245,7 @@ describe('Questionnaire CRUD tests', function () {
 
     // Save the questionnaire
     questionnaireObj.save().then(function () {
-      request(app).get('/api/questionnaires/' + questionnaireObj.id)
+      agent.get('/api/questionnaires/' + questionnaireObj.id)
         .expect(403)
         .end(function (req, res) {
           // Set assertion
@@ -264,7 +259,7 @@ describe('Questionnaire CRUD tests', function () {
 
   it('should return proper error for single questionnaire with an invalid Id, if not signed in', function (done) {
     // test is not a valid mongoose Id
-    request(app).get('/api/questionnaires/test')
+    agent.get('/api/questionnaires/test')
       .end(function (req, res) {
         // Set assertion
         res.body.should.be.instanceof(Object).and.have.property('message', 'Questionnaire is invalid');
@@ -276,7 +271,7 @@ describe('Questionnaire CRUD tests', function () {
 
   it('should return proper error for single questionnaire which doesnt exist, if not signed in', function (done) {
     // This is a valid mongoose Id but a non-existent questionnaire
-    request(app).get('/api/questionnaires/123567890')
+    agent.get('/api/questionnaires/123567890')
       .end(function (req, res) {
         // Set assertion
         res.body.should.be.instanceof(Object).and.have.property('message', 'No questionnaire with that identifier has been found');
@@ -305,8 +300,6 @@ describe('Questionnaire CRUD tests', function () {
           .send(questionnaire)
           .expect(200)
           .end(function (questionnaireSaveErr, questionnaireSaveRes) {
-
-
             // Handle questionnaire save error
             if (questionnaireSaveErr) {
               return done(questionnaireSaveErr);
@@ -356,6 +349,7 @@ describe('Questionnaire CRUD tests', function () {
 
     }).catch(function (err) {});
   });
+
 
   after(function (done) {
     User.destroy({
