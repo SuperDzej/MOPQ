@@ -32,7 +32,7 @@ describe('Questionnaire CRUD tests', function () {
 
     // Create user credentials
     credentials = {
-      email: 'email@email.com',
+      email: 'email-questionnaire@email.com',
       password: 'S3@n.jsI$Aw3$0m3'
     };
 
@@ -350,7 +350,6 @@ describe('Questionnaire CRUD tests', function () {
     }).catch(function (err) {});
   });
 
-
   after(function (done) {
     User.destroy({
         where: {},
@@ -375,5 +374,4 @@ describe('Questionnaire CRUD tests', function () {
         done();
       }).catch(function (err) { done(err); });
   });
-
 });

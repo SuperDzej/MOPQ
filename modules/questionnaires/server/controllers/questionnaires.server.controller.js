@@ -209,12 +209,19 @@ exports.list = function (req, res) {
 /**
  * Quiz middleware
  */
-exports.questionnaireByIDForPlay = function (req, res, next, id) {
+exports.questionnaireByIDForPlay = function (req, res, next, id) {  
+  if(!req.user) {
+    return res.status(403).send({
+      message: 'You are not authorized'
+    });
+  }
+  
   questionnaireService.questionnaireById(id, function (err, questionnaire) {
     if (err) {
       return res.status(400).send(err);
     }
-
+    console.log('Questionnaire play by id: ' + id);
+    console.log('Questionnaire play User: ' + req.user);
     QuestionnairePlay.find({
       where: {
         questionnaireId: id,

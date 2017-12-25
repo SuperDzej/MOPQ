@@ -41,11 +41,10 @@
           <div class="overlay">
           </div>
         </div>
-        <div class="col-md-12" ng-if="results.length == 0">
-          <p class="alert-warning">No questionnaires to display</p>
-        </div>
       </div>
-
+      <div class="col-md-12" ng-if="questionnaires.length == 0">
+        <p class="alert alert-warning">No questionnaires to display, contact admin to create one</p>
+      </div>
     </div>
   </div>
   <!-- END OF CURRENT QUESTIONNAIRES -->

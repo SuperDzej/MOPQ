@@ -8,19 +8,20 @@ module.exports = {
   },
   port: process.env.PORT || 8443,
   db: {
-    name: process.env.DB_NAME || "seanjs_dev",
-    host: process.env.DB_HOST || "localhost",
+    name: process.env.DB_NAME || "",
+    host: process.env.DB_HOST || "",
     port: process.env.DB_PORT || 5432,
-    username: process.env.DB_USERNAME || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
+    username: process.env.DB_USERNAME || "",
+    password: process.env.DB_PASSWORD || "",
     dialect: process.env.DB_DIALECT || "postgres", //mysql, postgres, sqlite3,...
     enableSequelizeLog: process.env.DB_LOG || false,
     ssl: process.env.DB_SSL || false,
     sync: process.env.DB_SYNC || false //Synchronizing any model changes with database
   },
   redis: {
-    host: process.env.REDIS_HOST || "localhost",
-    port: process.env.REDIS_PORT || 6379,
+    host: process.env.REDIS_HOST || "",
+    url: process.env.REDIS_URL || "",
+    port: process.env.REDIS_PORT || 16096,
     database: parseInt(process.env.REDIS_DATABASE) || 0,
     password: process.env.REDIS_PASSWORD || "",
   },

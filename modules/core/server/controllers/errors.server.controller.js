@@ -32,9 +32,15 @@ exports.getErrorMessage = function(err) {
         message = 'Something went wrong';
     }
   } else {
-    for (let i = 0;i < err.errors.length;i++) {
-      if (err.errors[i].message) {
-        message = err.errors[i].message;
+    console.log(err);
+    if(!err.errors) {
+      message = 'Something went wrong';
+    }
+    else {
+      for (let i = 0;i < err.errors.length;i++) {
+        if (err.errors[i].message) {
+          message = err.errors[i].message;
+        }
       }
     }
   }
