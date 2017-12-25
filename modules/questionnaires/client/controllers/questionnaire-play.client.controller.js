@@ -14,6 +14,18 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
     $scope.questionnaire = {};
     $scope.currentQuestion = 0;
 
+
+    var addLocationChangeListener = function () {
+      $scope.$on('$locationChangeStart', function (event, next, current) {
+        if (current) {
+          var answer = confirm('Are you sure you want to exit questionnaire?');
+          if (!answer) {
+            event.preventDefault();
+          }
+        }
+      });
+    };
+
     $scope.getByID = function () {
       var id = $stateParams.questionnaireId;
       answerStorageKey += id;
@@ -48,17 +60,6 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
         });
     };
 
-    var addLocationChangeListener = function () {
-      $scope.$on('$locationChangeStart', function (event, next, current) {
-        if (current) {
-          var answer = confirm('Are you sure you want to exit questionnaire?');
-          if (!answer) {
-            event.preventDefault();
-          }
-        }
-      });
-    };
-
     var match_operator_up = {
       '+': function (x, y) {
         return x + y;
@@ -76,7 +77,7 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
 
     var registerAnswer = function () {
       var question = $scope.questionnaire.questions[$scope.currentQuestion];
-      for (var i = 0;i < question.options.length;i++) {
+      for (var i = 0; i < question.options.length; i++) {
 
         var option = question.options[i];
         if (option.answer !== undefined && option.answer !== 'No') {
@@ -136,11 +137,11 @@ angular.module('questionnaires').controller('QuestionnairePlayController', ['$sc
     };
 
     // To remove extra options on radio button click
-    $scope.removeExtraAnswerModels = function(questionIndex, optionIndex, option) {
+    $scope.removeExtraAnswerModels = function (questionIndex, optionIndex, option) {
       var question = $scope.questionnaire.questions[questionIndex];
       // Remove all other models from database
-      for(var i = 0;i < question.options.length;i++) {
-        if(i !== optionIndex) {
+      for (var i = 0; i < question.options.length; i++) {
+        if (i !== optionIndex) {
           question.options[i].answer = undefined;
         }
       }
